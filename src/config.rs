@@ -1,26 +1,23 @@
-use std::{
-  fs
-};
+use std::{collections::HashMap, fs};
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
-  name: String,
-  symbol: String,
-  description: String,
-  creators: Vec<String>,
-  collection: Collection,
-  #[serde(skip)]
-  rarities: String,
-  order: Vec<String>,
-  guaranteed_rolls: Vec<Vec<String>>,
-  amount: u32,
+  pub name: String,
+  pub symbol: String,
+  pub description: String,
+  pub creators: Vec<String>,
+  pub collection: Collection,
+  pub rarities: HashMap<String, HashMap<String, f32>>,
+  pub order: Vec<String>,
+  pub guaranteed_rolls: Vec<Vec<String>>,
+  pub amount: u32,
 }
 
-#[derive(Serialize, Deserialize)]
-struct Collection {
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Collection {
   name: String,
   family: String,
 }
