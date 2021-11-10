@@ -2,6 +2,14 @@ use std::{collections::HashMap, fs};
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
+
+pub fn parse(location: &str) -> Result<Config> {
+  let config_file = fs::read_to_string(location).expect("Could not read configuration file");
+  let config: Config = serde_json::from_str(&config_file)?;
+  Ok(config)
+}
+
+
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
@@ -20,10 +28,4 @@ pub struct Config {
 pub struct Collection {
   name: String,
   family: String,
-}
-
-pub fn parse(location: &str) -> Result<Config> {
-  let config_file = fs::read_to_string(location).expect("Could not read configuration file");
-  let config: Config = serde_json::from_str(&config_file)?;
-  Ok(config)
 }

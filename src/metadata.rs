@@ -10,46 +10,6 @@ use serde::{Deserialize, Serialize};
 use crate::config;
 
 
-#[derive(Serialize, Deserialize)]
-pub struct NFTMetadata<'a> {
-  name: &'a str,
-  symbol: &'a str,
-  description: &'a str,
-  seller_fee_basis_points: u32,
-  image: &'a str,
-  external_url: &'a str,
-  edition: u16,
-  attributes: Vec<Trait<'a>>,
-  properties: Properties<'a>,
-  collection: config::Collection
-}
-
-#[derive(Serialize, Deserialize)]
-struct Trait<'a> {
-  trait_type: &'a str,
-  value: &'a str
-}
-
-#[derive(Serialize, Deserialize)]
-struct Properties<'a> {
-  files: Vec<PropertyFile<'a>>,
-  category: &'a str,
-  creators: Vec<Creator<'a>>
-}
-
-#[derive(Serialize, Deserialize)]
-struct PropertyFile<'a> {
-  uri: &'a str,
-  r#type: &'a str,
-}
-
-#[derive(Serialize, Deserialize)]
-struct Creator<'a> {
-  address: &'a str,
-  share: u8
-}
-
-
 pub fn generate(config_location: &String, _assets_directory: &String, output_directory: &String) {
   println!("Generating metadata...");
 
@@ -93,4 +53,44 @@ fn write_metadata(id: u32, data: &str, output_directory: &String) {
 
   let mut file = File::create(&path_buffer).expect("Could not create file");
   write!(file, "{}", data).expect("Could not write to file");
+}
+
+
+#[derive(Serialize, Deserialize)]
+pub struct NFTMetadata<'a> {
+  name: &'a str,
+  symbol: &'a str,
+  description: &'a str,
+  seller_fee_basis_points: u32,
+  image: &'a str,
+  external_url: &'a str,
+  edition: u16,
+  attributes: Vec<Trait<'a>>,
+  properties: Properties<'a>,
+  collection: config::Collection
+}
+
+#[derive(Serialize, Deserialize)]
+struct Trait<'a> {
+  trait_type: &'a str,
+  value: &'a str
+}
+
+#[derive(Serialize, Deserialize)]
+struct Properties<'a> {
+  files: Vec<PropertyFile<'a>>,
+  category: &'a str,
+  creators: Vec<Creator<'a>>
+}
+
+#[derive(Serialize, Deserialize)]
+struct PropertyFile<'a> {
+  uri: &'a str,
+  r#type: &'a str,
+}
+
+#[derive(Serialize, Deserialize)]
+struct Creator<'a> {
+  address: &'a str,
+  share: u8
 }
