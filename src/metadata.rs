@@ -3,50 +3,49 @@ use std::{
     File,
     create_dir_all
   },
-  io::Write,
-  path::Path
+  io::Write, path::Path
 };
 use serde::{Deserialize, Serialize};
-use serde_json::Result;
 
 use crate::config;
 
 
 #[derive(Serialize, Deserialize)]
-pub struct NFTMetadata {
-  name: String,
-  symbol: String,
-  description: String,
+pub struct NFTMetadata<'a> {
+  name: &'a str,
+  symbol: &'a str,
+  description: &'a str,
   seller_fee_basis_points: u32,
-  image: String,
-  external_url: String,
+  image: &'a str,
+  external_url: &'a str,
   edition: u16,
-  attributes: Vec<Trait>,
-  properties: Properties
+  attributes: Vec<Trait<'a>>,
+  properties: Properties<'a>,
+  collection: config::Collection
 }
 
 #[derive(Serialize, Deserialize)]
-struct Trait {
-  trait_type: String,
-  value: String
+struct Trait<'a> {
+  trait_type: &'a str,
+  value: &'a str
 }
 
 #[derive(Serialize, Deserialize)]
-struct Properties {
-  files: Vec<PropertyFile>,
-  category: String,
-  creators: Vec<Creator>
+struct Properties<'a> {
+  files: Vec<PropertyFile<'a>>,
+  category: &'a str,
+  creators: Vec<Creator<'a>>
 }
 
 #[derive(Serialize, Deserialize)]
-struct PropertyFile {
-  uri: String,
-  r#type: String,
+struct PropertyFile<'a> {
+  uri: &'a str,
+  r#type: &'a str,
 }
 
 #[derive(Serialize, Deserialize)]
-struct Creator {
-  address: String,
+struct Creator<'a> {
+  address: &'a str,
   share: u8
 }
 
@@ -58,7 +57,7 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
 
   create_dir_all(output_directory).expect("Could not create output directory");
 
-  for i in 0..5 {
+  for i in 0..config.amount {
     generate_stats(i, &config, output_directory);
   }
 }
@@ -70,19 +69,20 @@ fn generate_stats(n: u32, config: &config::Config, output_directory: &String) {
 
 fn create_metadata(id: u32, config: &config::Config, output_directory: &String) {
   let generated_metadata = NFTMetadata {
-    name: "Test NFT".to_string(),
-    symbol: "TEST".to_string(),
-    description: "Test NFT".to_string(),
+    name: &config.name,
+    symbol: &config.symbol,
+    description: &config.description,
     seller_fee_basis_points: 0,
-    image: "".to_string(),
-    external_url: "".to_string(),
+    image: &format!("{}.png", id),
+    external_url: "",
     edition: 0,
     attributes: vec![],
     properties: Properties {
       files: vec![],
-      category: "".to_string(),
+      category: "image",
       creators: vec![]
-    }
+    },
+    collection: config.collection.clone()
   };
   write_metadata(id, &serde_json::to_string(&generated_metadata).expect("Could not serialize JSON"), output_directory)
 }
