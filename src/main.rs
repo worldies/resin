@@ -1,8 +1,8 @@
 use clap::Parser;
 
+mod art;
 mod config;
 mod metadata;
-mod art;
 
 /// Generative art program for Solana NFTs
 #[derive(Parser, Debug)]
