@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
-use std::{collections::HashMap, fs};
+use std::{collections::BTreeMap, fs};
 
 pub fn parse(location: &str) -> Result<Config> {
     let config_file = fs::read_to_string(location).expect("Could not read configuration file");
@@ -16,7 +16,7 @@ pub struct Config {
     pub description: String,
     pub creators: Vec<String>,
     pub collection: Collection,
-    pub rarities: HashMap<String, HashMap<String, f32>>,
+    pub rarities: BTreeMap<String, BTreeMap<String, f32>>,
     pub order: Vec<String>,
     pub guaranteed_rolls: Vec<Vec<String>>,
     pub amount: u32,

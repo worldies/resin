@@ -1,3 +1,5 @@
+use rand::distributions::WeightedIndex;
+use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::{
     fs::{create_dir_all, File},
@@ -14,26 +16,63 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
 
     create_dir_all(output_directory).expect("Could not create output directory");
 
+    // let odds = collate_odds(&config);
+
     for i in 0..config.amount {
-        generate_stats(i, &config, output_directory);
+        generate_attributes(i, &config, output_directory);
     }
 }
 
-fn generate_stats(n: u32, config: &config::Config, output_directory: &String) {
-    // do rng here, decide stats
-    create_metadata(n, config, output_directory)
+// fn collate_odds(config: &config::Config) -> HashMap<&String, Vec<f32>> {
+//     // panic!("Rarities do not add up to 1.0!");
+//     let mut odds = HashMap::new();
+//     for (attribute_name, attribute_layers) in &config.rarities {
+//         odds.insert(attribute_name, vec![0.0_f32]);
+//     }
+//     return odds;
+// }
+
+fn generate_attributes(n: u32, config: &config::Config, output_directory: &String) {
+    let mut attributes = Vec::new();
+    let mut rng = thread_rng();
+
+    for attribute_name in &config.order {
+        let attribute_layers = config
+            .rarities
+            .get(attribute_name)
+            .expect(format!("Could not find attribute {} in attributes", attribute_name).as_str());
+
+        let choices: Vec<&String> = attribute_layers.keys().collect();
+        let weights: Vec<&f32> = attribute_layers.values().collect();
+
+        let dist = WeightedIndex::new(weights)
+            .expect("Could not create weighted index, are any odds less than 0?");
+
+        let result = dist.sample(&mut rng);
+        attributes.push(Trait {
+            trait_type: attribute_name,
+            value: choices[result].clone(),
+        })
+    }
+
+    create_metadata(n, attributes, config, output_directory)
 }
 
-fn create_metadata(id: u32, config: &config::Config, output_directory: &String) {
+fn create_metadata(
+    id: u32,
+    attributes: Vec<Trait>,
+    config: &config::Config,
+    output_directory: &String,
+) {
     let generated_metadata = NFTMetadata {
-        name: &config.name,
+        name: &format!("{} #{}", &config.name, id),
         symbol: &config.symbol,
         description: &config.description,
         seller_fee_basis_points: 0,
         image: &format!("{}.png", id),
         external_url: "",
         edition: 0,
-        attributes: vec![],
+        attributes,
         properties: Properties {
             files: vec![],
             category: "image",
@@ -73,7 +112,7 @@ pub struct NFTMetadata<'a> {
 #[derive(Serialize, Deserialize)]
 struct Trait<'a> {
     trait_type: &'a str,
-    value: &'a str,
+    value: String,
 }
 
 #[derive(Serialize, Deserialize)]
