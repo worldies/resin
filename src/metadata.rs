@@ -16,21 +16,10 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
 
     create_dir_all(output_directory).expect("Could not create output directory");
 
-    // let odds = collate_odds(&config);
-
     for i in 0..config.amount {
         generate_attributes(i, &config, output_directory);
     }
 }
-
-// fn collate_odds(config: &config::Config) -> HashMap<&String, Vec<f32>> {
-//     // panic!("Rarities do not add up to 1.0!");
-//     let mut odds = HashMap::new();
-//     for (attribute_name, attribute_layers) in &config.rarities {
-//         odds.insert(attribute_name, vec![0.0_f32]);
-//     }
-//     return odds;
-// }
 
 fn generate_attributes(n: u32, config: &config::Config, output_directory: &String) {
     let mut attributes = Vec::new();
@@ -89,7 +78,6 @@ fn create_metadata(
 
 fn write_metadata(id: u32, data: &str, output_directory: &String) {
     let path_buffer = Path::new(output_directory).join(format!("{}.json", id));
-    // println!("Writing metadata to {}", path_buffer.display());
 
     let mut file = File::create(&path_buffer).expect("Could not create file");
     write!(file, "{}", data).expect("Could not write to file");
