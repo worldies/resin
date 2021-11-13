@@ -24,16 +24,24 @@ fn read_metadata(assets_directory: &String, output_directory: &String) {
             None => continue,
         }
 
-        let contents = read_to_string(file.path()).expect("Could not read file contents");
-        let parsed_metadata: NFTMetadata =
-            serde_json::from_str(&contents).expect("Could not parse metadata JSON");
+        let contents = read_to_string(file.path()).expect(&format!(
+            "Could not read file contents for file {}",
+            file.path().display()
+        ));
+        let parsed_metadata: NFTMetadata = serde_json::from_str(&contents).expect(&format!(
+            "Could not parse metadata JSON for file {}",
+            file.path().display()
+        ));
         let file_name = file.file_name();
         let id = file_name
             .to_str()
             .unwrap()
             .split('.')
             .next()
-            .expect("Could not get ID from file name");
+            .expect(&format!(
+                "Could not get ID from file name for file {}",
+                file.path().display()
+            ));
 
         create_image(id, &parsed_metadata, assets_directory, output_directory);
     }
@@ -46,7 +54,10 @@ fn create_image(
     output_directory: &String,
 ) {
     let image_path_buffer = Path::new(output_directory).join(format!("{}.png", id));
-    let image_path = image_path_buffer.to_str().expect("Image is not valid path");
+    let image_path = image_path_buffer.to_str().expect(&format!(
+        "Image is not valid path at {}",
+        image_path_buffer.display()
+    ));
 
     copy(
         Path::new(assets_directory)
@@ -60,7 +71,10 @@ fn create_image(
         let layer_path_buffer = Path::new(assets_directory)
             .join(attribute.trait_type)
             .join(&attribute.value);
-        let layer_path = layer_path_buffer.to_str().expect("Layer is not valid path");
+        let layer_path = layer_path_buffer.to_str().expect(&format!(
+            "Layer is not valid path at {}",
+            layer_path_buffer.display()
+        ));
 
         Command::new("composite")
             .arg(layer_path)

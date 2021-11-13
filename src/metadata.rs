@@ -14,7 +14,10 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
 
     let config = config::parse(config_location.as_str()).expect("Error parsing config");
 
-    create_dir_all(output_directory).expect("Could not create output directory");
+    create_dir_all(output_directory).expect(&format!(
+        "Could not create output directory at {}",
+        output_directory
+    ));
 
     let amount_to_generate = (config.amount as usize) - config.guaranteed_rolls.len();
     for i in 0..amount_to_generate {
@@ -76,7 +79,7 @@ fn create_metadata(
     };
     write_metadata(
         id,
-        &serde_json::to_string(&generated_metadata).expect("Could not serialize JSON"),
+        &serde_json::to_string(&generated_metadata).expect("Could not serialize generated JSON"),
         output_directory,
     )
 }
@@ -84,8 +87,14 @@ fn create_metadata(
 fn write_metadata(id: u32, data: &str, output_directory: &String) {
     let path_buffer = Path::new(output_directory).join(format!("{}.json", id));
 
-    let mut file = File::create(&path_buffer).expect("Could not create file");
-    write!(file, "{}", data).expect("Could not write to file");
+    let mut file = File::create(&path_buffer).expect(&format!(
+        "Could not create file at path {}",
+        path_buffer.display()
+    ));
+    write!(file, "{}", data).expect(&format!(
+        "Could not write to file at path {}",
+        path_buffer.display()
+    ));
 }
 
 #[derive(Serialize, Deserialize)]
