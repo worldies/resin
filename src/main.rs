@@ -1,4 +1,5 @@
 use clap::Parser;
+use std::{fs::remove_dir_all, path::Path};
 
 mod art;
 mod config;
@@ -30,6 +31,10 @@ fn main() {
     println!("Starting generator");
 
     if !options.skip_metadata {
+        println!("Cleaning output directory...");
+        remove_dir_all(Path::new(&options.output))
+            .expect("Error occured cleaning output directory");
+
         metadata::generate(&options.config, &options.assets, &options.output);
     } else {
         println!("Skipping metadata generation");
