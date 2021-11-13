@@ -16,8 +16,13 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
 
     create_dir_all(output_directory).expect("Could not create output directory");
 
-    for i in 0..config.amount {
-        generate_attributes(i, &config, output_directory);
+    let amount_to_generate = (config.amount as usize) - config.guaranteed_rolls.len();
+    for i in 0..amount_to_generate {
+        generate_attributes(
+            i.try_into().expect("u32 limit exceeded"),
+            &config,
+            output_directory,
+        );
     }
 }
 
@@ -92,15 +97,15 @@ pub struct NFTMetadata<'a> {
     image: &'a str,
     external_url: &'a str,
     edition: u16,
-    attributes: Vec<Trait<'a>>,
+    pub attributes: Vec<Trait<'a>>,
     properties: Properties<'a>,
     collection: config::Collection,
 }
 
 #[derive(Serialize, Deserialize)]
-struct Trait<'a> {
-    trait_type: &'a str,
-    value: String,
+pub struct Trait<'a> {
+    pub trait_type: &'a str,
+    pub value: String,
 }
 
 #[derive(Serialize, Deserialize)]
