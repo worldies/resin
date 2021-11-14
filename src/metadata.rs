@@ -25,7 +25,7 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
         if i > 0 && guaranteed_rolls.len() > 0 && i % insert_frequency == 0 {
             let roll_attributes = {
                 let mut attribute_index: usize = 0;
-                let result = guaranteed_rolls[0]
+                guaranteed_rolls[0]
                     .iter()
                     .map(|t| {
                         attribute_index += 1;
@@ -34,8 +34,7 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
                             value: t.to_string(),
                         }
                     })
-                    .collect();
-                result
+                    .collect()
             };
             create_metadata(i, roll_attributes, &config, output_directory);
             guaranteed_rolls.remove(0);
