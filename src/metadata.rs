@@ -19,13 +19,29 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
         output_directory
     ));
 
-    let amount_to_generate = (config.amount as usize) - config.guaranteed_rolls.len();
-    for i in 0..amount_to_generate {
-        generate_attributes(
-            i.try_into().expect("u32 limit exceeded"),
-            &config,
-            output_directory,
-        );
+    let mut guaranteed_rolls = config.guaranteed_rolls.clone();
+    let insert_frequency = config.amount / (config.guaranteed_rolls.len() as u32 + 1);
+    for i in 0..config.amount {
+        if i > 0 && guaranteed_rolls.len() > 0 && i % insert_frequency == 0 {
+            let roll_attributes = {
+                let mut attribute_index: usize = 0;
+                let result = guaranteed_rolls[0]
+                    .iter()
+                    .map(|t| {
+                        attribute_index += 1;
+                        Trait {
+                            trait_type: &config.order[attribute_index - 1],
+                            value: t.to_string(),
+                        }
+                    })
+                    .collect();
+                result
+            };
+            create_metadata(i, roll_attributes, &config, output_directory);
+            guaranteed_rolls.remove(0);
+        } else {
+            generate_attributes(i, &config, output_directory);
+        }
     }
 }
 
