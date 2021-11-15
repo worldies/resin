@@ -15,6 +15,7 @@ pub struct Config {
     pub symbol: String,
     pub description: String,
     pub creators: Vec<String>,
+    pub royalty_percentage: u8,
     pub collection: Collection,
     pub rarities: BTreeMap<String, BTreeMap<String, f32>>,
     pub order: Vec<String>,
@@ -24,6 +25,6 @@ pub struct Config {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Collection {
-    name: String,
-    family: String,
+    pub name: String,
+    pub family: String,
 }
