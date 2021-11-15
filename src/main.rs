@@ -4,6 +4,7 @@ use std::{fs::remove_dir_all, path::Path};
 mod art;
 mod config;
 mod metadata;
+mod tests;
 
 /// Generative art program for Solana NFTs
 #[derive(Parser, Debug)]
