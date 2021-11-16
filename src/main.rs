@@ -1,7 +1,7 @@
 use clap::Parser;
-use std::{fs::remove_dir_all, path::Path};
 
 mod art;
+mod cmd;
 mod config;
 mod metadata;
 mod tests;
@@ -10,6 +10,20 @@ mod tests;
 #[derive(Parser, Debug)]
 #[clap()]
 struct Options {
+    #[clap(subcommand)]
+    subcmd: SubCommand,
+}
+
+#[derive(Parser, Debug)]
+enum SubCommand {
+    Generate(Generate),
+    Init(Init),
+    Verify(Verify),
+}
+
+/// A subcommand for controlling testing
+#[derive(Parser, Debug)]
+pub struct Generate {
     /// Whether to use already present metadata to generate art
     #[clap(long)]
     skip_metadata: bool,
@@ -27,21 +41,29 @@ struct Options {
     output: String,
 }
 
+#[derive(Parser, Debug)]
+pub struct Init {
+    /// Location of assets folder to initialize
+    #[clap(default_value = "./assets")]
+    folder: String,
+}
+
+#[derive(Parser, Debug)]
+pub struct Verify {
+    /// Location of generated folder to verify
+    #[clap(default_value = "./generated")]
+    folder: String,
+}
+
 fn main() {
     let options = Options::parse();
     println!("Starting generator");
 
-    if !options.skip_metadata {
-        println!("Cleaning output directory...");
-        remove_dir_all(Path::new(&options.output))
-            .expect("Error occured cleaning output directory");
-
-        metadata::generate(&options.config, &options.assets, &options.output);
-    } else {
-        println!("Skipping metadata generation");
+    match options.subcmd {
+        SubCommand::Generate(c) => cmd::generate::handle(c),
+        SubCommand::Init(c) => cmd::init::handle(c),
+        SubCommand::Verify(c) => cmd::verify::handle(c),
     }
-
-    art::generate(&options.config, &options.assets, &options.output);
 
     println!("Generator finished");
 }
