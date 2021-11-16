@@ -46,6 +46,10 @@ pub struct Init {
     /// Location of assets folder to initialize
     #[clap(default_value = "./assets")]
     folder: String,
+
+    /// Overwrite assets folder if already exists
+    #[clap(long)]
+    overwrite: bool,
 }
 
 #[derive(Parser, Debug)]
