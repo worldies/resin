@@ -6,14 +6,14 @@ mod config {
 
     const SAMPLE_CONFIG: &str = r#"
     {
-        "name": "dwada",
-        "symbol": "dawd",
-        "description": "dadawd",
-        "creators": ["123143"],
+        "name": "Very Special NFT",
+        "symbol": "SNFT",
+        "description": "This is the description of my NFT, it can be literally anything!",
+        "creators": ["BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD"],
         "royaltyPercentage": 10,
         "collection": {
-            "name": "dawd",
-            "family": "dawd"
+            "name": "Special NFT: Season 1",
+            "family": "Special NFTs"
         },
         "rarities": {
             "background": {
@@ -64,13 +64,13 @@ mod config {
         ],
         "guaranteedRolls": [
             [
-                "blue.png",
-                "cyan-face.png",
-                "egg-eyes.png",
-                "block-mouth.png"
+                "black.png",
+                "white-face.png",
+                "square-eyes.png",
+                "smile-mouth.png"
             ]
         ],
-        "amount": 5
+        "amount": 1337
     }
     "#;
 
@@ -100,22 +100,59 @@ mod config {
         let config_path = write_sample_config();
         let parsed_config = config::parse(&config_path).unwrap();
 
-        assert_eq!(parsed_config.name, "dwada");
-        assert_eq!(parsed_config.symbol, "dawd");
-        assert_eq!(parsed_config.description, "dadawd");
-        assert_eq!(parsed_config.creators, vec!["123143"]);
+        assert_eq!(parsed_config.name, "Very Special NFT");
+        assert_eq!(parsed_config.symbol, "SNFT");
+        assert_eq!(
+            parsed_config.description,
+            "This is the description of my NFT, it can be literally anything!"
+        );
+        assert_eq!(
+            parsed_config.creators,
+            vec!["BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD"]
+        );
         assert_eq!(parsed_config.royalty_percentage, 10);
-        assert_eq!(parsed_config.collection.name, "dawd");
-        assert_eq!(parsed_config.collection.family, "dawd");
+        assert_eq!(parsed_config.collection.name, "Special NFT: Season 1");
+        assert_eq!(parsed_config.collection.family, "Special NFTs");
         assert_eq!(parsed_config.rarities.len(), 4);
         assert_eq!(parsed_config.rarities.get("background").unwrap().len(), 14);
+        assert_eq!(
+            parsed_config
+                .rarities
+                .get("background")
+                .unwrap()
+                .get("blue.png")
+                .unwrap(),
+            &0.04f32
+        );
         assert_eq!(parsed_config.rarities.get("eyes").unwrap().len(), 4);
+        assert_eq!(
+            parsed_config
+                .rarities
+                .get("eyes")
+                .unwrap()
+                .get("egg-eyes.png")
+                .unwrap(),
+            &0.3f32
+        );
         assert_eq!(parsed_config.rarities.get("face").unwrap().len(), 10);
         assert_eq!(parsed_config.rarities.get("mouth").unwrap().len(), 3);
         assert_eq!(parsed_config.order.len(), 4);
+        assert_eq!(
+            parsed_config.order,
+            vec!["background", "face", "eyes", "mouth"]
+        );
         assert_eq!(parsed_config.guaranteed_rolls.len(), 1);
         assert_eq!(parsed_config.guaranteed_rolls[0].len(), 4);
-        assert_eq!(parsed_config.amount, 5);
+        assert_eq!(
+            parsed_config.guaranteed_rolls[0],
+            vec![
+                "black.png",
+                "white-face.png",
+                "square-eyes.png",
+                "smile-mouth.png"
+            ]
+        );
+        assert_eq!(parsed_config.amount, 1337);
     }
 
     #[test]
