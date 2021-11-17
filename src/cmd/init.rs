@@ -18,10 +18,10 @@ const EXAMPLE_CONFIG: &str = r#"{
     },
     "rarities": {
         "LAYER_NAME": {
-            "FILE_NAME.png": 0.01,
+            "FILE_NAME.png": 0.01
         },
         "LAYER_NAME_2": {
-            "FILE_NAME_2.png": 0.01,
+            "FILE_NAME_2.png": 0.01
         }
     },
     "order": [
@@ -31,7 +31,7 @@ const EXAMPLE_CONFIG: &str = r#"{
     "guaranteedRolls": [
         [
             "FILE_NAME.png",
-            "FILE_NAME_2.png",
+            "FILE_NAME_2.png"
         ]
     ],
     "amount": 10
