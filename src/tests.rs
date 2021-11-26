@@ -1,8 +1,20 @@
+mod common {
+    use rand::Rng;
+
+    pub fn random_file_name() -> String {
+        let mut rng = rand::thread_rng();
+        let file_name: String = (0u8..12u8)
+            .map(|_| rng.gen_range(65u8..=122u8) as char)
+            .collect();
+        file_name
+    }
+}
+
 mod config {
     #[allow(unused_imports)]
     use crate::config;
-    use rand::Rng;
-    use std::{env::temp_dir, fs::File, io::Write, path::Path};
+    use crate::tests::common;
+    use std::{env::temp_dir, fs::File, io::Write};
 
     const SAMPLE_CONFIG: &str = r#"
     {
@@ -80,11 +92,8 @@ mod config {
     #[allow(dead_code)]
     fn write_sample_config() -> String {
         let dir = temp_dir();
-        let mut rng = rand::thread_rng();
-        let file_name: String = (0u8..12u8)
-            .map(|_| rng.gen_range(65u8..=122u8) as char)
-            .collect();
-        let path_buffer = Path::new(&dir).join(format!("{:?}.json", file_name));
+        let file_name = common::random_file_name();
+        let path_buffer = dir.join(format!("{}.json", file_name));
 
         let mut file = File::create(&path_buffer).expect(&format!(
             "Could not create file at path {}",
@@ -209,5 +218,43 @@ mod art {
     #[test]
     fn creation() {
         assert!(true);
+    }
+}
+
+mod init {
+    #[allow(unused_imports)]
+    use crate::{
+        cmd::init,
+        tests::{common, config},
+        Init,
+    };
+    #[allow(unused_imports)]
+    use std::{env::temp_dir, fs::create_dir};
+
+    #[test]
+    fn from_scratch() {
+        let assets_dir_name = common::random_file_name();
+        let dir = temp_dir().join(assets_dir_name);
+        let command_input = Init {
+            folder: dir.to_str().unwrap().to_string(),
+            overwrite: false,
+            from_existing: None,
+        };
+        init::handle(command_input);
+        // TODO: add checks that folders and files were created properly
+    }
+
+    #[test]
+    #[should_panic]
+    fn directory_already_exists() {
+        let assets_dir_name = common::random_file_name();
+        let dir = temp_dir().join(assets_dir_name);
+        create_dir(&dir).unwrap();
+        let command_input = Init {
+            folder: dir.to_str().unwrap().to_string(),
+            overwrite: false,
+            from_existing: None,
+        };
+        init::handle(command_input);
     }
 }
