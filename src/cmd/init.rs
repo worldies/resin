@@ -10,7 +10,10 @@ const EXAMPLE_CONFIG: &str = r#"{
     "name": "NFT Title",
     "symbol": "SNFT",
     "description": "Hello, NFT!",
-    "creators": ["BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD"],
+    "creators": [{
+        address: "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD",
+        share: 100
+    }],
     "royaltyPercentage": 10,
     "collection": {
         "name": "NFT Collection",

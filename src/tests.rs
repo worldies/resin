@@ -9,7 +9,10 @@ mod config {
         "name": "Very Special NFT",
         "symbol": "SNFT",
         "description": "This is the description of my NFT, it can be literally anything!",
-        "creators": ["BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD"],
+        "creators": [{
+            "address": BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD",
+            "share": 100
+        }],
         "royaltyPercentage": 10,
         "collection": {
             "name": "Special NFT: Season 1",
@@ -107,9 +110,10 @@ mod config {
             "This is the description of my NFT, it can be literally anything!"
         );
         assert_eq!(
-            parsed_config.creators,
-            vec!["BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD"]
+            parsed_config.creators[0].address,
+            "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD"
         );
+        assert_eq!(parsed_config.creators[0].share, 100);
         assert_eq!(parsed_config.royalty_percentage, 10);
         assert_eq!(parsed_config.collection.name, "Special NFT: Season 1");
         assert_eq!(parsed_config.collection.family, "Special NFTs");

@@ -7,7 +7,7 @@ use std::{
     path::Path,
 };
 
-use crate::config;
+use crate::config::{self, Creator};
 
 pub fn generate(config_location: &String, _assets_directory: &String, output_directory: &String) {
     println!("Generating metadata...");
@@ -88,7 +88,7 @@ fn create_metadata(
         properties: Properties {
             files: vec![],
             category: "image",
-            creators: vec![],
+            creators: config.creators.clone(),
         },
         collection: config.collection.clone(),
     };
@@ -136,17 +136,11 @@ pub struct Trait<'a> {
 struct Properties<'a> {
     files: Vec<PropertyFile<'a>>,
     category: &'a str,
-    creators: Vec<Creator<'a>>,
+    creators: Vec<Creator>,
 }
 
 #[derive(Serialize, Deserialize)]
 struct PropertyFile<'a> {
     uri: &'a str,
     r#type: &'a str,
-}
-
-#[derive(Serialize, Deserialize)]
-struct Creator<'a> {
-    address: &'a str,
-    share: u8,
 }
