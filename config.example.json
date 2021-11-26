@@ -3,14 +3,17 @@
     "symbol": "SNFT",
     "description": "This is the description of my NFT, it can be literally anything!",
     "creators": [
-        "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD" // Replace with your wallet address
+        {
+            "address": "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD", // Replace with your wallet address
+            "share": 100
+        }
     ],
     "royaltyPercentage": 10, // How much royalties are paid to creators on each sale
     "collection": {
         "name": "Special NFT: Season 1",
         "family": "Special NFTs"
     },
-    "rarities": {
+    "attributes": {
         "background": {
             "blue.png": 0.04, // Probability of getting this trait
             "brown.png": 0.04, // Can be out of 1 (0.04) or out of 100 (4)
@@ -32,14 +35,14 @@
         }
         // Add as many layers and attributes as you want
     },
-    "order": [
+    "layerOrder": [
         "background",
         "face",
         "eyes",
         "mouth"
         // Ensure any layer you want included in the final art is present here
     ],
-    "guaranteedRolls": [
+    "guaranteedAttributeRolls": [
         [
             "blue.png",
             "cyan-face.png",

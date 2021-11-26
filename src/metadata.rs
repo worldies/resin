@@ -19,8 +19,8 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
         output_directory
     ));
 
-    let mut guaranteed_rolls = config.guaranteed_rolls.clone();
-    let insert_frequency = config.amount / (config.guaranteed_rolls.len() as u32 + 1);
+    let mut guaranteed_rolls = config.guaranteed_attribute_rolls.clone();
+    let insert_frequency = config.amount / (config.guaranteed_attribute_rolls.len() as u32 + 1);
     for i in 0..config.amount {
         if i > 0 && guaranteed_rolls.len() > 0 && i % insert_frequency == 0 {
             let roll_attributes = {
@@ -30,7 +30,7 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
                     .map(|t| {
                         attribute_index += 1;
                         Trait {
-                            trait_type: &config.order[attribute_index - 1],
+                            trait_type: config.layer_order[attribute_index - 1].clone(),
                             value: t.to_string(),
                         }
                     })
@@ -48,9 +48,9 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
     let mut attributes = Vec::new();
     let mut rng = thread_rng();
 
-    for attribute_name in &config.order {
+    for attribute_name in &config.layer_order {
         let attribute_layers = config
-            .rarities
+            .attributes
             .get(attribute_name)
             .expect(format!("Could not find attribute {} in attributes", attribute_name).as_str());
 
@@ -121,14 +121,14 @@ pub struct NFTMetadata<'a> {
     image: &'a str,
     external_url: &'a str,
     edition: u16,
-    pub attributes: Vec<Trait<'a>>,
+    pub attributes: Vec<Trait>,
     properties: Properties<'a>,
     collection: config::Collection,
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct Trait<'a> {
-    pub trait_type: &'a str,
+pub struct Trait {
+    pub trait_type: String,
     pub value: String,
 }
 

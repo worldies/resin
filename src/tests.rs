@@ -117,38 +117,41 @@ mod config {
         assert_eq!(parsed_config.royalty_percentage, 10);
         assert_eq!(parsed_config.collection.name, "Special NFT: Season 1");
         assert_eq!(parsed_config.collection.family, "Special NFTs");
-        assert_eq!(parsed_config.rarities.len(), 4);
-        assert_eq!(parsed_config.rarities.get("background").unwrap().len(), 14);
+        assert_eq!(parsed_config.attributes.len(), 4);
+        assert_eq!(
+            parsed_config.attributes.get("background").unwrap().len(),
+            14
+        );
         assert_eq!(
             parsed_config
-                .rarities
+                .attributes
                 .get("background")
                 .unwrap()
                 .get("blue.png")
                 .unwrap(),
             &0.04f32
         );
-        assert_eq!(parsed_config.rarities.get("eyes").unwrap().len(), 4);
+        assert_eq!(parsed_config.attributes.get("eyes").unwrap().len(), 4);
         assert_eq!(
             parsed_config
-                .rarities
+                .attributes
                 .get("eyes")
                 .unwrap()
                 .get("egg-eyes.png")
                 .unwrap(),
             &0.3f32
         );
-        assert_eq!(parsed_config.rarities.get("face").unwrap().len(), 10);
-        assert_eq!(parsed_config.rarities.get("mouth").unwrap().len(), 3);
-        assert_eq!(parsed_config.order.len(), 4);
+        assert_eq!(parsed_config.attributes.get("face").unwrap().len(), 10);
+        assert_eq!(parsed_config.attributes.get("mouth").unwrap().len(), 3);
+        assert_eq!(parsed_config.layer_order.len(), 4);
         assert_eq!(
-            parsed_config.order,
+            parsed_config.layer_order,
             vec!["background", "face", "eyes", "mouth"]
         );
-        assert_eq!(parsed_config.guaranteed_rolls.len(), 1);
-        assert_eq!(parsed_config.guaranteed_rolls[0].len(), 4);
+        assert_eq!(parsed_config.guaranteed_attribute_rolls.len(), 1);
+        assert_eq!(parsed_config.guaranteed_attribute_rolls[0].len(), 4);
         assert_eq!(
-            parsed_config.guaranteed_rolls[0],
+            parsed_config.guaranteed_attribute_rolls[0],
             vec![
                 "black.png",
                 "white-face.png",

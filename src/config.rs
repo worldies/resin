@@ -17,9 +17,9 @@ pub struct Config {
     pub creators: Vec<Creator>,
     pub royalty_percentage: u8,
     pub collection: Collection,
-    pub rarities: BTreeMap<String, BTreeMap<String, f32>>,
-    pub order: Vec<String>,
-    pub guaranteed_rolls: Vec<Vec<String>>,
+    pub attributes: BTreeMap<String, BTreeMap<String, f32>>,
+    pub layer_order: Vec<String>,
+    pub guaranteed_attribute_rolls: Vec<Vec<String>>,
     pub amount: u32,
 }
 
