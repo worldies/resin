@@ -11,15 +11,15 @@ const EXAMPLE_CONFIG: &str = r#"{
     "symbol": "SNFT",
     "description": "Hello, NFT!",
     "creators": [{
-        address: "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD",
-        share: 100
+        "address": "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD",
+        "share": 100
     }],
     "royaltyPercentage": 10,
     "collection": {
         "name": "NFT Collection",
         "family": "NFT Family"
     },
-    "rarities": {
+    "attributes": {
         "LAYER_NAME": {
             "FILE_NAME.png": 0.01
         },
@@ -27,11 +27,11 @@ const EXAMPLE_CONFIG: &str = r#"{
             "FILE_NAME_2.png": 0.01
         }
     },
-    "order": [
+    "layerOrder": [
         "LAYER_NAME",
         "LAYER_NAME_2"
     ],
-    "guaranteedRolls": [
+    "guaranteedAttributeRolls": [
         [
             "FILE_NAME.png",
             "FILE_NAME_2.png"
