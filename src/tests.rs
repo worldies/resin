@@ -10,7 +10,7 @@ mod config {
         "symbol": "SNFT",
         "description": "This is the description of my NFT, it can be literally anything!",
         "creators": [{
-            "address": BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD",
+            "address": "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD",
             "share": 100
         }],
         "royaltyPercentage": 10,
@@ -18,7 +18,7 @@ mod config {
             "name": "Special NFT: Season 1",
             "family": "Special NFTs"
         },
-        "rarities": {
+        "attributes": {
             "background": {
                 "blue.png": 0.04,
                 "brown.png": 0.04,
@@ -59,13 +59,13 @@ mod config {
                 "triangle-mouth.png": 0.68
             }
         },
-        "order": [
+        "layerOrder": [
             "background",
             "face",
             "eyes",
             "mouth"
         ],
-        "guaranteedRolls": [
+        "guaranteedAttributeRolls": [
             [
                 "black.png",
                 "white-face.png",
