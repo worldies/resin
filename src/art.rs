@@ -43,16 +43,11 @@ fn read_metadata(assets_directory: &String, output_directory: &String) {
                 file.path().display()
             ));
 
-        create_image(id, &parsed_metadata, assets_directory, output_directory);
+        create_image(id, &parsed_metadata, &assets_directory, &output_directory);
     }
 }
 
-fn create_image(
-    id: &str,
-    metadata: &NFTMetadata,
-    assets_directory: &String,
-    output_directory: &String,
-) {
+fn create_image(id: &str, metadata: &NFTMetadata, assets_directory: &str, output_directory: &str) {
     let image_path_buffer = Path::new(output_directory).join(format!("{}.png", id));
     let image_path = image_path_buffer.to_str().expect(&format!(
         "Image is not valid path at {}",
@@ -61,16 +56,16 @@ fn create_image(
 
     copy(
         Path::new(assets_directory)
-            .join(metadata.attributes[0].trait_type)
-            .join(&metadata.attributes[0].value),
+            .join(metadata.attributes[0].trait_type.clone())
+            .join(format!("{}.png", &metadata.attributes[0].value)),
         image_path,
     )
     .expect(&format!("Could not copy base layer for image {}", id));
 
     for attribute in &metadata.attributes[1..] {
         let layer_path_buffer = Path::new(assets_directory)
-            .join(attribute.trait_type)
-            .join(&attribute.value);
+            .join(attribute.trait_type.clone())
+            .join(format!("{}.png", &attribute.value));
         let layer_path = layer_path_buffer.to_str().expect(&format!(
             "Layer is not valid path at {}",
             layer_path_buffer.display()

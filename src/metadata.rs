@@ -61,9 +61,13 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
             .expect("Could not create weighted index, are any odds less than 0?");
 
         let result = dist.sample(&mut rng);
+        let mut name_split = choices[result].split(".").collect::<Vec<&str>>();
+        name_split.pop();
+        let name = name_split.join(".");
+
         attributes.push(Trait {
-            trait_type: attribute_name,
-            value: choices[result].clone(),
+            trait_type: attribute_name.to_string(),
+            value: name,
         })
     }
 
