@@ -21,7 +21,7 @@ enum SubCommand {
     Verify(Verify),
 }
 
-/// A subcommand for controlling testing
+/// Generate artwork and metadata
 #[derive(Parser, Debug)]
 pub struct Generate {
     /// Whether to use already present metadata to generate art
@@ -41,6 +41,7 @@ pub struct Generate {
     output: String,
 }
 
+/// Initialize assets directory
 #[derive(Parser, Debug)]
 pub struct Init {
     /// Location of assets folder to initialize
@@ -50,8 +51,13 @@ pub struct Init {
     /// Overwrite assets folder if already exists
     #[clap(long)]
     overwrite: bool,
+
+    /// Create a config.json from an existing assets folder, ignores folder option
+    #[clap(long)]
+    from_existing: Option<String>,
 }
 
+/// Verify generated assets integrity
 #[derive(Parser, Debug)]
 pub struct Verify {
     /// Location of generated folder to verify
