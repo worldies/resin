@@ -12,3 +12,4 @@ Cargo.lock
 
 # Generated artwork from assets
 /generated
+/assets*
