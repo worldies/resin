@@ -81,7 +81,7 @@ fn create_from_existing(options: Init) {
     if !folder_path.is_dir() {
         panic!("Path {} is not a directory!", path);
     }
-    let config_path = folder_path.join("config-initted.json");
+    let config_path = folder_path.join("config.json");
     if config_path.exists() && !options.overwrite {
         panic!(
             "Config already exists at path {}, pass --overwrite to overwrite",
