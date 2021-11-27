@@ -11,6 +11,7 @@ const EXAMPLE_CONFIG: &str = r#"{
     "name": "NFT Title",
     "symbol": "SNFT",
     "description": "Hello, NFT!",
+    "externalUrl": "https://example.com",
     "creators": [{
         "address": "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD",
         "share": 100

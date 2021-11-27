@@ -2,6 +2,7 @@
     "name": "Very Special NFT",
     "symbol": "SNFT",
     "description": "This is the description of my NFT, it can be literally anything!",
+    "externalUrl": "https://veryspecial.nft",
     "creators": [
         {
             "address": "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD", // Replace with your wallet address

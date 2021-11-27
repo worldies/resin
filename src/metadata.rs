@@ -80,17 +80,21 @@ fn create_metadata(
     config: &config::Config,
     output_directory: &String,
 ) {
+    let image_name = &format!("{}.png", id);
     let generated_metadata = NFTMetadata {
         name: &format!("{} #{}", &config.name, id),
         symbol: &config.symbol,
         description: &config.description,
         seller_fee_basis_points: 0,
-        image: &format!("{}.png", id),
-        external_url: "",
+        image: image_name,
+        external_url: &config.external_url,
         edition: 0,
         attributes,
         properties: Properties {
-            files: vec![],
+            files: vec![PropertyFile {
+                uri: image_name,
+                r#type: "image/png",
+            }],
             category: "image",
             creators: config.creators.clone(),
         },

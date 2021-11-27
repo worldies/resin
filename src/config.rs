@@ -14,6 +14,7 @@ pub struct Config {
     pub name: String,
     pub symbol: String,
     pub description: String,
+    pub external_url: String,
     pub creators: Vec<Creator>,
     pub royalty_percentage: u8,
     pub collection: Collection,

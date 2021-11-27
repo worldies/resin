@@ -21,6 +21,7 @@ mod config {
         "name": "Very Special NFT",
         "symbol": "SNFT",
         "description": "This is the description of my NFT, it can be literally anything!",
+        "externalUrl": "https://veryspecial.nft",
         "creators": [{
             "address": "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD",
             "share": 100
@@ -118,6 +119,7 @@ mod config {
             parsed_config.description,
             "This is the description of my NFT, it can be literally anything!"
         );
+        assert_eq!(parsed_config.external_url, "https://veryspecial.nft");
         assert_eq!(
             parsed_config.creators[0].address,
             "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD"
