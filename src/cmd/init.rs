@@ -74,15 +74,15 @@ fn create_from_scratch(options: Init) {
 }
 
 fn create_from_existing(options: Init) {
-    let path = options.from_existing.unwrap();
-    let folder_path = Path::new(&path);
-    if !folder_path.exists() {
-        panic!("Folder at path {} does not exist!", path);
+    let raw_assets_path = options.from_existing.unwrap();
+    let assets_path = Path::new(&raw_assets_path);
+    if !assets_path.exists() {
+        panic!("Folder at path {} does not exist!", raw_assets_path);
     }
-    if !folder_path.is_dir() {
-        panic!("Path {} is not a directory!", path);
+    if !assets_path.is_dir() {
+        panic!("Path {} is not a directory!", raw_assets_path);
     }
-    let config_path = folder_path.join("config.json");
+    let config_path = assets_path.join("config.json");
     if config_path.exists() && !options.overwrite {
         panic!(
             "Config already exists at path {}, pass --overwrite to overwrite",
@@ -90,28 +90,32 @@ fn create_from_existing(options: Init) {
         );
     }
 
-    let mut parsed_example_config: Config =
+    let mut config: Config =
         serde_json::from_str(EXAMPLE_CONFIG).expect("Unable to parse example config");
 
-    parsed_example_config.attributes = BTreeMap::new();
+    config.attributes = BTreeMap::new();
 
-    for attribute in folder_path
+    for attribute in assets_path
         .read_dir()
         .expect("Encountered error reading assets directory")
     {
-        let attribute = attribute.expect("Encountered error reading folder in assets directory");
+        let attribute =
+            attribute.expect("Encountered error reading attribute folder in assets directory");
 
         if !attribute.path().is_dir() {
             continue;
         }
 
-        let mut attribute_map: BTreeMap<String, f32> = BTreeMap::new();
+        let mut attribute_layers: BTreeMap<String, f32> = BTreeMap::new();
 
         for layer in attribute.path().read_dir().expect(&format!(
             "Encountered error reading folder in {}",
             attribute.path().display()
         )) {
-            let layer = layer.expect("Encountered error reading layer in assets directory");
+            let layer = layer.expect(&format!(
+                "Encountered error reading layer in attribute directory {:?}",
+                attribute.file_name()
+            ));
             let layer_path = layer.path();
 
             if layer_path.is_dir() {
@@ -119,10 +123,10 @@ fn create_from_existing(options: Init) {
             }
 
             let layer_name = layer_path.file_name().unwrap().to_str().unwrap();
-            attribute_map.insert(layer_name.to_string(), 0.1);
+            attribute_layers.insert(layer_name.to_string(), 0.1);
         }
 
-        parsed_example_config.attributes.insert(
+        config.attributes.insert(
             attribute
                 .path()
                 .file_name()
@@ -130,12 +134,19 @@ fn create_from_existing(options: Init) {
                 .to_str()
                 .unwrap()
                 .to_string(),
-            attribute_map,
+            attribute_layers,
         );
     }
 
-    let serialized_config = &serde_json::to_string(&parsed_example_config)
-        .expect("Could not serialize generated config JSON");
+    config.layer_order = config
+        .attributes
+        .keys()
+        .map(|key| key.to_string())
+        .collect();
+    config.guaranteed_attribute_rolls = vec![];
+
+    let serialized_config =
+        &serde_json::to_string(&config).expect("Could not serialize generated config JSON");
     let mut config_file =
         File::create(config_path).expect("Encountered error creating config file");
     write!(config_file, "{}", serialized_config).expect("Encountered error writing config file");
