@@ -201,6 +201,7 @@ mod art {
 #[cfg(test)]
 mod init {
     use crate::{cmd::init, config, Init};
+    use std::fs::{create_dir_all, File};
     use tempfile::tempdir;
 
     #[test]
@@ -262,6 +263,68 @@ mod init {
             parsed_config.guaranteed_attribute_rolls[0],
             vec!["FILE_NAME.png", "FILE_NAME_2.png"]
         );
+        assert_eq!(parsed_config.amount, 10);
+    }
+
+    #[test]
+    fn from_existing() {
+        let dir = tempdir().unwrap();
+        let dir_path = dir.path();
+
+        let dirs_to_create = vec!["attribute 1", "attribute 2", "attribute 3"];
+        for dir in &dirs_to_create {
+            create_dir_all(dir_path.join(dir)).unwrap();
+        }
+
+        let files_to_create = vec!["file 1.png", "file 2.png", "file 3.png"];
+        for file in files_to_create {
+            for dir in &dirs_to_create {
+                File::create(dir_path.join(dir).join(file)).unwrap();
+            }
+        }
+
+        let command_input = Init {
+            folder: "".to_string(),
+            overwrite: false,
+            from_existing: dir_path.to_str().map(str::to_string),
+        };
+        init::handle(command_input);
+
+        let parsed_config = config::parse(dir_path.join("config.json").to_str().unwrap()).unwrap();
+
+        assert_eq!(parsed_config.name, "NFT Title");
+        assert_eq!(parsed_config.symbol, "SNFT");
+        assert_eq!(parsed_config.description, "Hello, NFT!");
+        assert_eq!(parsed_config.external_url, "https://example.com");
+        assert_eq!(
+            parsed_config.creators[0].address,
+            "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD"
+        );
+        assert_eq!(parsed_config.creators[0].share, 100);
+        assert_eq!(parsed_config.royalty_percentage, 10);
+        assert_eq!(parsed_config.collection.name, "NFT Collection");
+        assert_eq!(parsed_config.collection.family, "NFT Family");
+        assert_eq!(parsed_config.attributes.len(), 3);
+        assert_eq!(
+            parsed_config.attributes.get("attribute 1").unwrap().len(),
+            3
+        );
+        assert_eq!(
+            parsed_config
+                .attributes
+                .get("attribute 1")
+                .unwrap()
+                .get("file 1.png")
+                .unwrap(),
+            &0.1f32
+        );
+        assert_eq!(
+            parsed_config.attributes.get("attribute 2").unwrap().len(),
+            3
+        );
+        assert_eq!(parsed_config.layer_order.len(), dirs_to_create.len());
+        assert_eq!(parsed_config.layer_order, dirs_to_create);
+        assert_eq!(parsed_config.guaranteed_attribute_rolls.len(), 0);
         assert_eq!(parsed_config.amount, 10);
     }
 
