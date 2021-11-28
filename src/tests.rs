@@ -1,22 +1,10 @@
-mod common {
-    use rand::Rng;
-
-    pub fn random_file_name() -> String {
-        let mut rng = rand::thread_rng();
-        let file_name: String = (0u8..12u8)
-            .map(|_| rng.gen_range(65u8..=122u8) as char)
-            .collect();
-        file_name
-    }
-}
-
+#[cfg(test)]
 mod config {
-    #[allow(unused_imports)]
     use crate::config;
-    use crate::tests::common;
-    use std::{env::temp_dir, fs::File, io::Write};
+    use std::io::Write;
+    use tempfile::NamedTempFile;
 
-    const SAMPLE_CONFIG: &str = r#"
+    pub const SAMPLE_CONFIG: &str = r#"
     {
         "name": "Very Special NFT",
         "symbol": "SNFT",
@@ -90,28 +78,11 @@ mod config {
     }
     "#;
 
-    #[allow(dead_code)]
-    fn write_sample_config() -> String {
-        let dir = temp_dir();
-        let file_name = common::random_file_name();
-        let path_buffer = dir.join(format!("{}.json", file_name));
-
-        let mut file = File::create(&path_buffer).expect(&format!(
-            "Could not create file at path {}",
-            path_buffer.display()
-        ));
-        write!(file, "{}", SAMPLE_CONFIG).expect(&format!(
-            "Could not write to file at path {}",
-            path_buffer.display()
-        ));
-
-        path_buffer.to_str().unwrap_or("").to_string()
-    }
-
     #[test]
     fn parse() {
-        let config_path = write_sample_config();
-        let parsed_config = config::parse(&config_path).unwrap();
+        let file = NamedTempFile::new().expect("Could not create temp config file");
+        write!(file.as_file(), "{}", SAMPLE_CONFIG).expect("Could not write to temp config file");
+        let parsed_config = config::parse(file.path().to_str().unwrap()).unwrap();
 
         assert_eq!(parsed_config.name, "Very Special NFT");
         assert_eq!(parsed_config.symbol, "SNFT");
@@ -182,12 +153,15 @@ mod config {
     #[test]
     #[should_panic]
     fn corrupted_file() {
-        let config_path = write_sample_config();
-        write!(File::create(&config_path).unwrap(), "invalid json").unwrap();
-        config::parse(&config_path).unwrap();
+        let file = NamedTempFile::new().expect("Could not create temp config file");
+        write!(file.as_file(), "invalid json").unwrap();
+
+        let config_path = file.path();
+        config::parse(config_path.to_str().unwrap()).unwrap();
     }
 }
 
+#[cfg(test)]
 mod metadata {
     #[allow(unused_imports)]
     use crate::metadata;
@@ -208,6 +182,7 @@ mod metadata {
     }
 }
 
+#[cfg(test)]
 mod art {
     #[allow(unused_imports)]
     use crate::art;
@@ -223,37 +198,79 @@ mod art {
     }
 }
 
+#[cfg(test)]
 mod init {
-    #[allow(unused_imports)]
-    use crate::{
-        cmd::init,
-        tests::{common, config},
-        Init,
-    };
-    #[allow(unused_imports)]
-    use std::{env::temp_dir, fs::create_dir};
+    use crate::{cmd::init, config, Init};
+    use tempfile::tempdir;
 
     #[test]
     fn from_scratch() {
-        let assets_dir_name = common::random_file_name();
-        let dir = temp_dir().join(assets_dir_name);
+        let dir = tempdir().unwrap().path().join("assets");
         let command_input = Init {
             folder: dir.to_str().unwrap().to_string(),
             overwrite: false,
             from_existing: None,
         };
         init::handle(command_input);
-        // TODO: add checks that folders and files were created properly
+
+        let parsed_config = config::parse(dir.join("config.json").to_str().unwrap()).unwrap();
+
+        assert_eq!(parsed_config.name, "NFT Title");
+        assert_eq!(parsed_config.symbol, "SNFT");
+        assert_eq!(parsed_config.description, "Hello, NFT!");
+        assert_eq!(parsed_config.external_url, "https://example.com");
+        assert_eq!(
+            parsed_config.creators[0].address,
+            "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD"
+        );
+        assert_eq!(parsed_config.creators[0].share, 100);
+        assert_eq!(parsed_config.royalty_percentage, 10);
+        assert_eq!(parsed_config.collection.name, "NFT Collection");
+        assert_eq!(parsed_config.collection.family, "NFT Family");
+        assert_eq!(parsed_config.attributes.len(), 2);
+        assert_eq!(parsed_config.attributes.get("LAYER_NAME").unwrap().len(), 1);
+        assert_eq!(
+            parsed_config
+                .attributes
+                .get("LAYER_NAME")
+                .unwrap()
+                .get("FILE_NAME.png")
+                .unwrap(),
+            &0.01f32
+        );
+        assert_eq!(
+            parsed_config.attributes.get("LAYER_NAME_2").unwrap().len(),
+            1
+        );
+        assert_eq!(
+            parsed_config
+                .attributes
+                .get("LAYER_NAME_2")
+                .unwrap()
+                .get("FILE_NAME_2.png")
+                .unwrap(),
+            &0.01f32
+        );
+        assert_eq!(parsed_config.layer_order.len(), 2);
+        assert_eq!(
+            parsed_config.layer_order,
+            vec!["LAYER_NAME", "LAYER_NAME_2"]
+        );
+        assert_eq!(parsed_config.guaranteed_attribute_rolls.len(), 1);
+        assert_eq!(parsed_config.guaranteed_attribute_rolls[0].len(), 2);
+        assert_eq!(
+            parsed_config.guaranteed_attribute_rolls[0],
+            vec!["FILE_NAME.png", "FILE_NAME_2.png"]
+        );
+        assert_eq!(parsed_config.amount, 10);
     }
 
     #[test]
     #[should_panic]
     fn directory_already_exists() {
-        let assets_dir_name = common::random_file_name();
-        let dir = temp_dir().join(assets_dir_name);
-        create_dir(&dir).unwrap();
+        let dir = tempdir().unwrap();
         let command_input = Init {
-            folder: dir.to_str().unwrap().to_string(),
+            folder: dir.path().to_str().unwrap().to_string(),
             overwrite: false,
             from_existing: None,
         };
