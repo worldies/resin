@@ -19,6 +19,18 @@ cargo build --release
 ```
 
 # Usage
+## From existing
+Initialize from existing assets directory under `./assets`
+```sh
+resin init --from-existing=./assets
+```
+> Make sure each attribute is a subfolder and each subfolder contains the layers you want to use (reference the structure below)
+
+1. Edit the `config.json` to configure odds
+2. Run `resin generate`
+3. View generated files in `./generated`!
+
+## From scratch
 Initialize the assets directory under `./assets`
 ```sh
 resin init
@@ -28,7 +40,6 @@ resin init
 2. Edit the `config.json`
 3. Run `resin generate`
 4. View generated files in `./generated`!
-
 
 ### Assets directory structure:
 ```
@@ -50,4 +61,5 @@ resin init
 git clone https://github.com/glockenberry/resin.git
 cd resin
 cargo run
+cargo test # make sure all tests pass
 ```
