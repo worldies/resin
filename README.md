@@ -31,7 +31,7 @@ resin init --from-existing=./assets
 3. View generated files in `./generated`!
 
 ## From scratch
-Initialize the assets directory under `./assets`
+Initialize new assets directory under `./assets`
 ```sh
 resin init
 ```
@@ -40,6 +40,8 @@ resin init
 2. Edit the `config.json`
 3. Run `resin generate`
 4. View generated files in `./generated`!
+
+Refer to [config.example.json](https://github.com/glockenberry/resin/blob/main/config.example.json) for the format of `config.json`
 
 ### Assets directory structure:
 ```
