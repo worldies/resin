@@ -5,7 +5,10 @@ use std::{
     path::Path,
 };
 
-use crate::{config::Config, Init};
+use crate::{
+    config::{Attribute, Config},
+    Init,
+};
 
 const EXAMPLE_CONFIG: &str = r#"{
     "name": "NFT Title",
@@ -134,7 +137,7 @@ fn create_from_existing(options: Init) {
                 .to_str()
                 .unwrap()
                 .to_string(),
-            attribute_layers,
+            Attribute::Standard(attribute_layers),
         );
     }
 
