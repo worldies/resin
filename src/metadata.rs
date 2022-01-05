@@ -20,19 +20,17 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
     ));
 
     let mut guaranteed_rolls = config.guaranteed_attribute_rolls.clone();
+    // How often to insert a guaranteed roll into generated rolls
     let insert_frequency = config.amount / (config.guaranteed_attribute_rolls.len() as u32 + 1);
     for i in 0..config.amount {
         if i > 0 && guaranteed_rolls.len() > 0 && i % insert_frequency == 0 {
             let roll_attributes = {
-                let mut attribute_index: usize = 0;
                 guaranteed_rolls[0]
                     .iter()
-                    .map(|t| {
-                        attribute_index += 1;
-                        Trait {
-                            trait_type: config.layer_order[attribute_index - 1].clone(),
-                            value: t.to_string(),
-                        }
+                    .enumerate()
+                    .map(|(i, t)| Trait {
+                        trait_type: config.layer_order[i].clone(),
+                        value: t.to_owned(),
                     })
                     .collect()
             };
