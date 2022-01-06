@@ -100,13 +100,10 @@ mod config {
         assert_eq!(parsed_config.collection.family, "Special NFTs");
         assert_eq!(parsed_config.attributes.len(), 5);
 
-        assert!(matches!(
-            parsed_config.attributes.get("background").unwrap(),
-            Attribute::Keyed { .. }
-        ));
         if let Attribute::Keyed(background_attribute) =
             parsed_config.attributes.get("background").unwrap()
         {
+            assert_eq!(background_attribute.get("_").unwrap().len(), 6);
             assert_eq!(
                 background_attribute
                     .get("_")
@@ -122,11 +119,9 @@ mod config {
             )
         }
 
-        assert!(matches!(
-            parsed_config.attributes.get("face").unwrap(),
-            Attribute::Keyed { .. }
-        ));
         if let Attribute::Keyed(face_attribute) = parsed_config.attributes.get("face").unwrap() {
+            assert_eq!(face_attribute.get("joker").unwrap().len(), 1);
+            assert_eq!(face_attribute.get("_").unwrap().len(), 5);
             assert_eq!(
                 face_attribute
                     .get("joker")
@@ -150,11 +145,9 @@ mod config {
             )
         }
 
-        assert!(matches!(
-            parsed_config.attributes.get("mouth").unwrap(),
-            Attribute::Keyed { .. }
-        ));
         if let Attribute::Keyed(mouth_attribute) = parsed_config.attributes.get("mouth").unwrap() {
+            assert_eq!(mouth_attribute.get("_key:joker").unwrap().len(), 1);
+            assert_eq!(mouth_attribute.get("_").unwrap().len(), 2);
             assert_eq!(
                 mouth_attribute
                     .get("_key:joker")
