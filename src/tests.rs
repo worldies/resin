@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod config {
-    use crate::config;
+    use crate::config::{self, Attribute};
     use std::io::Write;
     use tempfile::NamedTempFile;
 
@@ -10,62 +10,61 @@ mod config {
         "symbol": "SNFT",
         "description": "This is the description of my NFT, it can be literally anything!",
         "externalUrl": "https://veryspecial.nft",
-        "creators": [{
-            "address": "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD",
-            "share": 100
-        }],
+        "creators": [
+            {
+                "address": "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD",
+                "share": 100
+            }
+        ],
         "royaltyPercentage": 10,
         "collection": {
             "name": "Special NFT: Season 1",
             "family": "Special NFTs"
         },
         "attributes": {
-            "background": {
-                "blue.png": 0.04,
-                "brown.png": 0.04,
-                "flesh.png": 0.05,
-                "green.png": 0.02,
-                "light-blue.png": 0.06,
-                "light-green.png": 0.01,
-                "light-pink.png": 0.07,
-                "light-purple.png": 0.05,
-                "light-yellow.png": 0.06,
-                "orange.png": 0.07,
-                "pink.png": 0.02,
-                "purple.png": 0.03,
-                "red.png": 0.05,
-                "yellow.png": 0.43
+            "_key": {
+                "joker": 0.01
             },
-            "eyes": {
-                "egg-eyes.png": 0.3,
-                "heart-eyes.png": 0.12,
-                "square-eyes.png": 0.02,
-                "star-eyes.png": 0.56
+            "background": {
+                "_": {
+                    "blue.png": 0.04,
+                    "green.png": 0.02,
+                    "orange.png": 0.07,
+                    "pink.png": 0.02,
+                    "purple.png": 0.03,
+                    "red.png": 0.05
+                }
             },
             "face": {
-                "cyan-face.png": 0.07,
-                "dark-green-face.png": 0.04,
-                "flesh-face.png": 0.03,
-                "gold-face.png": 0.11,
-                "grapefruit-face.png": 0.07,
-                "green-face.png": 0.05,
-                "pink-face.png": 0.05,
-                "purple-face.png": 0.02,
-                "sun-face.png": 0.1,
-                "teal-face.png": 0.46
+                "joker": {
+                    "gold-face.png": 0.11
+                },
+                "_": {
+                    "cyan-face.png": 0.07,
+                    "green-face.png": 0.05,
+                    "pink-face.png": 0.05,
+                    "purple-face.png": 0.02,
+                    "teal-face.png": 0.46
+                }
+            },
+            "eyes": {
+                "_": {
+                    "egg-eyes.png": 0.3,
+                    "heart-eyes.png": 0.12,
+                    "square-eyes.png": 0.02,
+                    "star-eyes.png": 0.56
+                }
             },
             "mouth": {
-                "block-mouth.png": 0.23,
-                "smile-mouth.png": 0.09,
-                "triangle-mouth.png": 0.68
+                "_key:joker": {
+                    "triangle-mouth.png": 0.68
+                },
+                "_": {
+                    "block-mouth.png": 0.23,
+                    "smile-mouth.png": 0.09
+                }
             }
         },
-        "layerOrder": [
-            "background",
-            "face",
-            "eyes",
-            "mouth"
-        ],
         "guaranteedAttributeRolls": [
             [
                 "black.png",
@@ -99,37 +98,86 @@ mod config {
         assert_eq!(parsed_config.royalty_percentage, 10);
         assert_eq!(parsed_config.collection.name, "Special NFT: Season 1");
         assert_eq!(parsed_config.collection.family, "Special NFTs");
-        assert_eq!(parsed_config.attributes.len(), 4);
-        assert_eq!(
-            parsed_config.attributes.get("background").unwrap().len(),
-            14
-        );
-        assert_eq!(
-            parsed_config
-                .attributes
-                .get("background")
-                .unwrap()
-                .get("blue.png")
-                .unwrap(),
-            &0.04f32
-        );
-        assert_eq!(parsed_config.attributes.get("eyes").unwrap().len(), 4);
-        assert_eq!(
-            parsed_config
-                .attributes
-                .get("eyes")
-                .unwrap()
-                .get("egg-eyes.png")
-                .unwrap(),
-            &0.3f32
-        );
-        assert_eq!(parsed_config.attributes.get("face").unwrap().len(), 10);
-        assert_eq!(parsed_config.attributes.get("mouth").unwrap().len(), 3);
-        assert_eq!(parsed_config.layer_order.len(), 4);
-        assert_eq!(
-            parsed_config.layer_order,
-            vec!["background", "face", "eyes", "mouth"]
-        );
+        assert_eq!(parsed_config.attributes.len(), 5);
+
+        assert!(matches!(
+            parsed_config.attributes.get("background").unwrap(),
+            Attribute::Keyed { .. }
+        ));
+        if let Attribute::Keyed(background_attribute) =
+            parsed_config.attributes.get("background").unwrap()
+        {
+            assert_eq!(
+                background_attribute
+                    .get("_")
+                    .unwrap()
+                    .get("blue.png")
+                    .unwrap(),
+                &0.04f32
+            );
+        } else {
+            assert!(
+                false,
+                "wasn't able to deserialize background_attribute into keyed attribute"
+            )
+        }
+
+        assert!(matches!(
+            parsed_config.attributes.get("face").unwrap(),
+            Attribute::Keyed { .. }
+        ));
+        if let Attribute::Keyed(face_attribute) = parsed_config.attributes.get("face").unwrap() {
+            assert_eq!(
+                face_attribute
+                    .get("joker")
+                    .unwrap()
+                    .get("gold-face.png")
+                    .unwrap(),
+                &0.11f32
+            );
+            assert_eq!(
+                face_attribute
+                    .get("_")
+                    .unwrap()
+                    .get("cyan-face.png")
+                    .unwrap(),
+                &0.07f32
+            );
+        } else {
+            assert!(
+                false,
+                "wasn't able to deserialize face_attribute into keyed attribute"
+            )
+        }
+
+        assert!(matches!(
+            parsed_config.attributes.get("mouth").unwrap(),
+            Attribute::Keyed { .. }
+        ));
+        if let Attribute::Keyed(mouth_attribute) = parsed_config.attributes.get("mouth").unwrap() {
+            assert_eq!(
+                mouth_attribute
+                    .get("_key:joker")
+                    .unwrap()
+                    .get("triangle-mouth.png")
+                    .unwrap(),
+                &0.68f32
+            );
+            assert_eq!(
+                mouth_attribute
+                    .get("_")
+                    .unwrap()
+                    .get("block-mouth.png")
+                    .unwrap(),
+                &0.23f32
+            );
+        } else {
+            assert!(
+                false,
+                "wasn't able to deserialize mouth_attribute into keyed attribute"
+            )
+        }
+
         assert_eq!(parsed_config.guaranteed_attribute_rolls.len(), 1);
         assert_eq!(parsed_config.guaranteed_attribute_rolls[0].len(), 4);
         assert_eq!(
