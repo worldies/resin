@@ -2,6 +2,7 @@ use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::{
+    collections::BTreeMap,
     fs::{create_dir_all, File},
     io::Write,
     path::Path,
@@ -47,53 +48,65 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
     let mut attributes = Vec::new();
     let mut rng = thread_rng();
 
-    for attribute_name in &config.layer_order {
-        let attribute_layers = config
-            .attributes
-            .get(attribute_name)
-            .expect(format!("Could not find attribute {} in attributes", attribute_name).as_str());
-
-        match attribute_layers {
+    for (attribute_name, keys) in &config.attributes {
+        let subattribute;
+        match keys {
             Attribute::Keyed(attribute) => {
-                let subattribute;
-                match attribute.get("alchemistaa") {
-                    Some(n) => subattribute = n,
-                    None => {
-                        subattribute = attribute
-                            .get("_")
-                            .expect("Could not find fallback attribute '_'")
+                let mut attributes_iter = attributes.iter();
+                let mut computed_key = "_";
+                for raw_key in attribute.keys() {
+                    if raw_key == "_" {
+                        continue;
+                    }
+                    let (key, value) = raw_key.split_once(":").unwrap_or(("_key", raw_key));
+
+                    if attributes_iter.any(|t: &Trait| t.trait_type == key && t.value == value) {
+                        computed_key = raw_key;
+                        break;
                     }
                 }
-                let choices: Vec<&String> = subattribute.keys().collect();
-                let weights: Vec<&f32> = subattribute.values().collect();
 
-                let dist = WeightedIndex::new(weights)
-                    .expect("Could not create weighted index, are any odds less than 0?");
-
-                let result = dist.sample(&mut rng);
-
-                // Remove file extension (.png)
-                let name = choices[result]
-                    .strip_suffix(".png")
-                    .unwrap_or(choices[result]);
-
-                attributes.push(Trait {
-                    trait_type: attribute_name.to_string(),
-                    value: name.to_string(),
-                })
+                subattribute = attribute.get(computed_key).expect(&format!(
+                    "Could not get attribute {} for key {}",
+                    attribute_name, computed_key
+                ));
             }
-            Attribute::Standard(attribute) => {
-                println!("standard for {}", attribute_name)
-            }
+            Attribute::Standard(attribute) => subattribute = attribute,
         }
+        calculate_rng_for_attribute(attribute_name, subattribute, &mut attributes, &mut rng);
     }
 
     create_metadata(n, attributes, config, output_directory)
 }
 
+fn calculate_rng_for_attribute(
+    attribute_name: &String,
+    attribute: &BTreeMap<String, f32>,
+    attributes: &mut Vec<Trait>,
+    rng: &mut ThreadRng,
+) {
+    let choices: Vec<&String> = attribute.keys().collect();
+    let weights: Vec<&f32> = attribute.values().collect();
+
+    let dist = WeightedIndex::new(weights)
+        .expect("Could not create weighted index, are any odds less than 0?");
+
+    let result = dist.sample(rng);
+
+    // Remove file extension (.png)
+    let name = choices[result]
+        .strip_suffix(".png")
+        .unwrap_or(choices[result]);
+
+    attributes.push(Trait {
+        trait_type: attribute_name.to_string(),
+        value: name.to_string(),
+    });
+}
+
 fn create_metadata(
     id: u32,
-    attributes: Vec<Trait>,
+    mut attributes: Vec<Trait>,
     config: &config::Config,
     output_directory: &String,
 ) {
@@ -106,7 +119,10 @@ fn create_metadata(
         image: image_name,
         external_url: &config.external_url,
         edition: 0,
-        attributes,
+        attributes: attributes
+            .drain(..)
+            .filter(|attribute| !attribute.trait_type.starts_with("_"))
+            .collect(),
         properties: Properties {
             files: vec![PropertyFile {
                 uri: image_name,
@@ -151,7 +167,7 @@ pub struct NFTMetadata<'a> {
     collection: config::Collection,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Trait {
     pub trait_type: String,
     pub value: String,
