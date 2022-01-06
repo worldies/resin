@@ -15,21 +15,33 @@ const EXAMPLE_CONFIG: &str = r#"{
     "symbol": "SNFT",
     "description": "Hello, NFT!",
     "externalUrl": "https://example.com",
-    "creators": [{
-        "address": "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD",
-        "share": 100
-    }],
+    "creators": [
+        {
+            "address": "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD",
+            "share": 100
+        }
+    ],
     "royaltyPercentage": 10,
     "collection": {
         "name": "NFT Collection",
         "family": "NFT Family"
     },
     "attributes": {
+        "_key": {
+            "KEY": 0.01
+        },
         "LAYER_NAME": {
-            "FILE_NAME.png": 0.01
+            "_": {
+                "FILE_NAME.png": 0.01
+            }
         },
         "LAYER_NAME_2": {
-            "FILE_NAME_2.png": 0.01
+            "KEY": {
+                "FILE_NAME_3.png": 0.01
+            },
+            "_": {
+                "FILE_NAME_2.png": 0.01
+            }
         }
     },
     "guaranteedAttributeRolls": [
@@ -125,6 +137,9 @@ fn create_from_existing(options: Init) {
             attribute_layers.insert(layer_name.to_string(), 0.1);
         }
 
+        let mut attributes = BTreeMap::new();
+        attributes.insert("_".to_string(), attribute_layers);
+
         config.attributes.insert(
             attribute
                 .path()
@@ -133,7 +148,7 @@ fn create_from_existing(options: Init) {
                 .to_str()
                 .unwrap()
                 .to_string(),
-            Attribute::Standard(attribute_layers),
+            Attribute::Keyed(attributes),
         );
     }
 
