@@ -32,10 +32,6 @@ const EXAMPLE_CONFIG: &str = r#"{
             "FILE_NAME_2.png": 0.01
         }
     },
-    "layerOrder": [
-        "LAYER_NAME",
-        "LAYER_NAME_2"
-    ],
     "guaranteedAttributeRolls": [
         [
             "FILE_NAME.png",
@@ -141,11 +137,6 @@ fn create_from_existing(options: Init) {
         );
     }
 
-    config.layer_order = config
-        .attributes
-        .keys()
-        .map(|key| key.to_string())
-        .collect();
     config.guaranteed_attribute_rolls = vec![];
 
     let serialized_config =
