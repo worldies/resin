@@ -15,41 +15,51 @@
         "family": "Special NFTs"
     },
     "attributes": {
+        "_key": { // Attributes prefixed with "_" will not be included in final metadata
+            "alchemist": 0.54
+        },
         "background": {
-            "blue.png": 0.04, // Probability of getting this trait
-            "brown.png": 0.04, // Can be out of 1 (0.04) or out of 100 (4)
-            "flesh.png": 0.05,
-            "green.png": 0.02
+            "_": {
+                "blue.png": 0.04, // Probability of getting this trait
+                "brown.png": 0.04, // Can be out of 1 (0.04) or out of 100 (4)
+                "flesh.png": 0.05,
+                "green.png": 0.02
+            }
         },
         "face": {
-            "cyan-face.png": 0.07,
-            "dark-green-face.png": 0.04
+            "_": {
+                "cyan-face.png": 0.07,
+                "dark-green-face.png": 0.04
+            },
+            "alchemist": {
+                "alchemist-face.png": 0.01
+            },
+            "_key:alchemist": { // longer version of above object with explicit key name
+                "alchemist-face.png": 0.01
+            }
         },
         "eyes": {
-            "egg-eyes.png": 0.3,
-            "heart-eyes.png": 0.12,
-            "square-eyes.png": 0.02
+            "_": {
+                "egg-eyes.png": 0.3,
+                "heart-eyes.png": 0.12,
+                "square-eyes.png": 0.02
+            }
         },
         "mouth": {
-            "block-mouth.png": 0.23,
-            "smile-mouth.png": 0.09
+            "_": {
+                "block-mouth.png": 0.23,
+                "smile-mouth.png": 0.09
+            }
         }
         // Add as many layers and attributes as you want
     },
-    "layerOrder": [
-        "background",
-        "face",
-        "eyes",
-        "mouth"
-        // Ensure any layer you want included in the final art is present here
-    ],
     "guaranteedAttributeRolls": [
         [
             "blue.png",
             "cyan-face.png",
             "square-eyes.png",
             "smile-mouth.png"
-            // Layers here MUST match those in the order array above
+            // Layers here MUST match the order in attributes object
         ]
     ],
     "amount": 5 // Includes the guaranteed rolls (in this case would generate 4 random + 1 guaranteed)
