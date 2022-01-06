@@ -1,0 +1,66 @@
+{
+    "name": "Very Special NFT",
+    "symbol": "SNFT",
+    "description": "This is the description of my NFT, it can be literally anything!",
+    "externalUrl": "https://veryspecial.nft",
+    "creators": [
+        {
+            "address": "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD", // Replace with your wallet address
+            "share": 100
+        }
+    ],
+    "royaltyPercentage": 10, // How much royalties are paid to creators on each sale
+    "collection": {
+        "name": "Special NFT: Season 1",
+        "family": "Special NFTs"
+    },
+    "attributes": {
+        "_key": { // Attributes prefixed with "_" will not be included in final metadata
+            "alchemist": 0.54
+        },
+        "background": {
+            "_": {
+                "blue.png": 0.04, // Probability of getting this trait
+                "brown.png": 0.04, // Can be out of 1 (0.04) or out of 100 (4)
+                "flesh.png": 0.05,
+                "green.png": 0.02
+            }
+        },
+        "face": {
+            "_": {
+                "cyan-face.png": 0.07,
+                "dark-green-face.png": 0.04
+            },
+            "alchemist": {
+                "alchemist-face.png": 0.01
+            },
+            "_key:alchemist": { // longer version of above object with explicit key name
+                "alchemist-face.png": 0.01
+            }
+        },
+        "eyes": {
+            "_": {
+                "egg-eyes.png": 0.3,
+                "heart-eyes.png": 0.12,
+                "square-eyes.png": 0.02
+            }
+        },
+        "mouth": {
+            "_": {
+                "block-mouth.png": 0.23,
+                "smile-mouth.png": 0.09
+            }
+        }
+        // Add as many layers and attributes as you want
+    },
+    "guaranteedAttributeRolls": [
+        [
+            "blue.png",
+            "cyan-face.png",
+            "square-eyes.png",
+            "smile-mouth.png"
+            // Layers here MUST match those in the order array above
+        ]
+    ],
+    "amount": 5 // Includes the guaranteed rolls (in this case would generate 4 random + 1 guaranteed)
+}
