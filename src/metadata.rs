@@ -7,7 +7,7 @@ use std::{
     path::Path,
 };
 
-use crate::config::{self, Creator};
+use crate::config::{self, Attribute, Creator};
 
 pub fn generate(config_location: &String, _assets_directory: &String, output_directory: &String) {
     println!("Generating metadata...");
@@ -52,21 +52,39 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
             .get(attribute_name)
             .expect(format!("Could not find attribute {} in attributes", attribute_name).as_str());
 
-        let choices: Vec<&String> = attribute_layers.keys().collect();
-        let weights: Vec<&f32> = attribute_layers.values().collect();
+        match attribute_layers {
+            Attribute::Keyed(attribute) => {
+                let subattribute;
+                match attribute.get("alchemistaa") {
+                    Some(n) => subattribute = n,
+                    None => {
+                        subattribute = attribute
+                            .get("_")
+                            .expect("Could not find fallback attribute '_'")
+                    }
+                }
+                let choices: Vec<&String> = subattribute.keys().collect();
+                let weights: Vec<&f32> = subattribute.values().collect();
 
-        let dist = WeightedIndex::new(weights)
-            .expect("Could not create weighted index, are any odds less than 0?");
+                let dist = WeightedIndex::new(weights)
+                    .expect("Could not create weighted index, are any odds less than 0?");
 
-        let result = dist.sample(&mut rng);
-        let mut name_split = choices[result].split(".").collect::<Vec<&str>>();
-        name_split.pop();
-        let name = name_split.join(".");
+                let result = dist.sample(&mut rng);
 
-        attributes.push(Trait {
-            trait_type: attribute_name.to_string(),
-            value: name,
-        })
+                // Remove file extension (.png)
+                let name = choices[result]
+                    .strip_suffix(".png")
+                    .unwrap_or(choices[result]);
+
+                attributes.push(Trait {
+                    trait_type: attribute_name.to_string(),
+                    value: name.to_string(),
+                })
+            }
+            Attribute::Standard(attribute) => {
+                println!("standard for {}", attribute_name)
+            }
+        }
     }
 
     create_metadata(n, attributes, config, output_directory)
