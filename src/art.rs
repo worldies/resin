@@ -2,17 +2,28 @@ use std::{
     fs::{copy, read_dir, read_to_string},
     path::Path,
     process::Command,
+    thread,
 };
 
 use crate::metadata::NFTMetadata;
 
-pub fn generate(_config_location: &String, assets_directory: &String, output_directory: &String) {
+const NUM_THREADS: usize = 20;
+
+pub fn generate(_config_location: &String, assets_directory: String, output_directory: String) {
     println!("Generating artwork from metadata...");
-    read_metadata(assets_directory, output_directory);
+    read_metadata(
+        Box::leak(assets_directory.into_boxed_str()),
+        Box::leak(output_directory.into_boxed_str()),
+    );
 }
 
-fn read_metadata(assets_directory: &String, output_directory: &String) {
-    let files = read_dir(output_directory).expect("Could not read assets directory");
+fn read_metadata(assets_directory: &'static str, output_directory: &'static str) {
+    let files = read_dir(output_directory).expect(&format!(
+        "Could not read source directory {}",
+        output_directory
+    ));
+    let mut threads: Vec<thread::JoinHandle<()>> = vec![];
+
     for file_raw in files {
         let file = file_raw.expect("Could not read file");
         match file.path().extension() {
@@ -24,26 +35,36 @@ fn read_metadata(assets_directory: &String, output_directory: &String) {
             None => continue,
         }
 
-        let contents = read_to_string(file.path()).expect(&format!(
-            "Could not read file contents for file {}",
-            file.path().display()
-        ));
-        let parsed_metadata: NFTMetadata = serde_json::from_str(&contents).expect(&format!(
-            "Could not parse metadata JSON for file {}",
-            file.path().display()
-        ));
-        let file_name = file.file_name();
-        let id = file_name
-            .to_str()
-            .unwrap()
-            .split('.')
-            .next()
-            .expect(&format!(
-                "Could not get ID from file name for file {}",
+        if threads.len() >= NUM_THREADS {
+            let t = threads.remove(0);
+            t.join().expect("Thread failed to finish cleanly");
+        }
+        threads.push(thread::spawn(move || {
+            let contents = read_to_string(file.path()).expect(&format!(
+                "Could not read file contents for file {}",
                 file.path().display()
             ));
+            let parsed_metadata: NFTMetadata = serde_json::from_str(&contents).expect(&format!(
+                "Could not parse metadata JSON for file {}",
+                file.path().display()
+            ));
+            let file_name = file.file_name();
+            let id = file_name
+                .to_str()
+                .unwrap()
+                .split('.')
+                .next()
+                .expect(&format!(
+                    "Could not get ID from file name for file {}",
+                    file.path().display()
+                ));
 
-        create_image(id, &parsed_metadata, &assets_directory, &output_directory);
+            create_image(id, &parsed_metadata, &assets_directory, &output_directory);
+        }));
+    }
+
+    for child in threads {
+        let _ = child.join();
     }
 }
 

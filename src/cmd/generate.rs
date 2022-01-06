@@ -16,5 +16,5 @@ pub fn handle(options: Generate) {
         println!("Skipping metadata generation");
     }
 
-    art::generate(&options.config, &options.assets, &options.output);
+    art::generate(&options.config, options.assets, options.output);
 }
