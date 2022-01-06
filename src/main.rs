@@ -1,3 +1,5 @@
+use std::time::SystemTime;
+
 use clap::Parser;
 
 mod art;
@@ -68,6 +70,7 @@ pub struct Verify {
 fn main() {
     let options = Options::parse();
     println!("Starting generator");
+    let now = SystemTime::now();
 
     match options.subcmd {
         SubCommand::Generate(c) => cmd::generate::handle(c),
@@ -75,5 +78,8 @@ fn main() {
         SubCommand::Verify(c) => cmd::verify::handle(c),
     }
 
-    println!("Generator finished");
+    println!(
+        "Generator finished in {:#?}",
+        now.elapsed().unwrap_or_default()
+    );
 }
