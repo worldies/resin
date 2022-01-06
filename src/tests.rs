@@ -248,7 +248,11 @@ mod art {
 
 #[cfg(test)]
 mod init {
-    use crate::{cmd::init, config, Init};
+    use crate::{
+        cmd::init,
+        config::{self, Attribute},
+        Init,
+    };
     use std::fs::{create_dir_all, File};
     use tempfile::tempdir;
 
@@ -276,35 +280,37 @@ mod init {
         assert_eq!(parsed_config.royalty_percentage, 10);
         assert_eq!(parsed_config.collection.name, "NFT Collection");
         assert_eq!(parsed_config.collection.family, "NFT Family");
-        assert_eq!(parsed_config.attributes.len(), 2);
-        assert_eq!(parsed_config.attributes.get("LAYER_NAME").unwrap().len(), 1);
-        assert_eq!(
-            parsed_config
-                .attributes
-                .get("LAYER_NAME")
-                .unwrap()
-                .get("FILE_NAME.png")
-                .unwrap(),
-            &0.01f32
-        );
-        assert_eq!(
-            parsed_config.attributes.get("LAYER_NAME_2").unwrap().len(),
-            1
-        );
-        assert_eq!(
-            parsed_config
-                .attributes
-                .get("LAYER_NAME_2")
-                .unwrap()
-                .get("FILE_NAME_2.png")
-                .unwrap(),
-            &0.01f32
-        );
-        assert_eq!(parsed_config.layer_order.len(), 2);
-        assert_eq!(
-            parsed_config.layer_order,
-            vec!["LAYER_NAME", "LAYER_NAME_2"]
-        );
+        assert_eq!(parsed_config.attributes.len(), 3);
+
+        if let Attribute::Keyed(layer_1) = parsed_config.attributes.get("LAYER_NAME").unwrap() {
+            assert_eq!(layer_1.get("_").unwrap().len(), 1);
+            assert_eq!(
+                layer_1.get("_").unwrap().get("FILE_NAME.png").unwrap(),
+                &0.01f32
+            );
+        } else {
+            assert!(
+                false,
+                "wasn't able to deserialize LAYER_NAME into keyed attribute"
+            )
+        }
+        if let Attribute::Keyed(layer_2) = parsed_config.attributes.get("LAYER_NAME_2").unwrap() {
+            assert_eq!(layer_2.get("_").unwrap().len(), 1);
+            assert_eq!(
+                layer_2.get("KEY").unwrap().get("FILE_NAME_3.png").unwrap(),
+                &0.01f32
+            );
+            assert_eq!(
+                layer_2.get("_").unwrap().get("FILE_NAME_2.png").unwrap(),
+                &0.01f32
+            );
+        } else {
+            assert!(
+                false,
+                "wasn't able to deserialize LAYER_NAME_2 into keyed attribute"
+            )
+        }
+
         assert_eq!(parsed_config.guaranteed_attribute_rolls.len(), 1);
         assert_eq!(parsed_config.guaranteed_attribute_rolls[0].len(), 2);
         assert_eq!(
@@ -353,25 +359,32 @@ mod init {
         assert_eq!(parsed_config.collection.name, "NFT Collection");
         assert_eq!(parsed_config.collection.family, "NFT Family");
         assert_eq!(parsed_config.attributes.len(), 3);
-        assert_eq!(
-            parsed_config.attributes.get("attribute 1").unwrap().len(),
-            3
-        );
-        assert_eq!(
-            parsed_config
-                .attributes
-                .get("attribute 1")
-                .unwrap()
-                .get("file 1.png")
-                .unwrap(),
-            &0.1f32
-        );
-        assert_eq!(
-            parsed_config.attributes.get("attribute 2").unwrap().len(),
-            3
-        );
-        assert_eq!(parsed_config.layer_order.len(), dirs_to_create.len());
-        assert_eq!(parsed_config.layer_order, dirs_to_create);
+
+        if let Attribute::Keyed(layer_1) = parsed_config.attributes.get("attribute 1").unwrap() {
+            assert_eq!(layer_1.get("_").unwrap().len(), 3);
+            assert_eq!(
+                layer_1.get("_").unwrap().get("file 1.png").unwrap(),
+                &0.1f32
+            );
+        } else {
+            assert!(
+                false,
+                "wasn't able to deserialize attribute 1 into keyed attribute"
+            )
+        }
+        if let Attribute::Keyed(layer_2) = parsed_config.attributes.get("attribute 2").unwrap() {
+            assert_eq!(layer_2.get("_").unwrap().len(), 3);
+            assert_eq!(
+                layer_2.get("_").unwrap().get("file 2.png").unwrap(),
+                &0.1f32
+            );
+        } else {
+            assert!(
+                false,
+                "wasn't able to deserialize attribute 1 into keyed attribute"
+            )
+        }
+
         assert_eq!(parsed_config.guaranteed_attribute_rolls.len(), 0);
         assert_eq!(parsed_config.amount, 10);
     }
