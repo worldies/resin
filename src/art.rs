@@ -1,5 +1,5 @@
 use std::{
-    fs::{copy, read_dir, read_to_string},
+    fs::{read_dir, read_to_string},
     path::Path,
     process::Command,
     thread,
@@ -75,15 +75,10 @@ fn create_image(id: &str, metadata: &NFTMetadata, assets_directory: &str, output
         image_path_buffer.display()
     ));
 
-    copy(
-        Path::new(assets_directory)
-            .join(metadata.attributes[0].trait_type.clone())
-            .join(format!("{}.png", &metadata.attributes[0].value)),
-        image_path,
-    )
-    .expect(&format!("Could not copy base layer for image {}", id));
+    let mut composite_command = Command::new("convert");
 
-    for attribute in &metadata.attributes[1..] {
+    let mut is_first_layer = true;
+    for attribute in &metadata.attributes {
         let layer_path_buffer = Path::new(assets_directory)
             .join(attribute.trait_type.clone())
             .join(format!("{}.png", &attribute.value));
@@ -91,12 +86,20 @@ fn create_image(id: &str, metadata: &NFTMetadata, assets_directory: &str, output
             "Layer is not valid path at {}",
             layer_path_buffer.display()
         ));
+        if !layer_path_buffer.exists() {
+            panic!("Layer does not exist at path {}", layer_path);
+        }
 
-        Command::new("composite")
-            .arg(layer_path)
-            .arg(image_path)
-            .arg(image_path)
-            .output()
-            .expect(&format!("Error creating image {}", id));
+        if is_first_layer {
+            composite_command.arg(layer_path);
+            is_first_layer = false;
+        } else {
+            composite_command.args([layer_path, "-composite"]);
+        }
     }
+
+    composite_command
+        .arg(image_path)
+        .output()
+        .expect(&format!("Error creating image {}", id));
 }
