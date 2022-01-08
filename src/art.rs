@@ -1,7 +1,6 @@
 use std::{
     fs::{read_dir, read_to_string},
     path::Path,
-    process::Command,
     thread,
 };
 
@@ -69,37 +68,29 @@ fn read_metadata(assets_directory: &'static str, output_directory: &'static str)
 }
 
 fn create_image(id: &str, metadata: &NFTMetadata, assets_directory: &str, output_directory: &str) {
-    let image_path_buffer = Path::new(output_directory).join(format!("{}.png", id));
-    let image_path = image_path_buffer.to_str().expect(&format!(
-        "Image is not valid path at {}",
-        image_path_buffer.display()
+    let image_path = Path::new(output_directory).join(format!("{}.png", id));
+
+    let base_path = Path::new(assets_directory)
+        .join(&metadata.attributes[0].trait_type)
+        .join(format!("{}.png", &metadata.attributes[0].value));
+    let mut base_layer = image::open(&base_path).ok().expect(&format!(
+        "Could not open base layer at path {}",
+        &base_path.display()
     ));
 
-    let mut composite_command = Command::new("convert");
-
-    let mut is_first_layer = true;
-    for attribute in &metadata.attributes {
-        let layer_path_buffer = Path::new(assets_directory)
-            .join(attribute.trait_type.clone())
+    for attribute in &metadata.attributes[1..] {
+        let layer_path = Path::new(assets_directory)
+            .join(&attribute.trait_type)
             .join(format!("{}.png", &attribute.value));
-        let layer_path = layer_path_buffer.to_str().expect(&format!(
-            "Layer is not valid path at {}",
-            layer_path_buffer.display()
-        ));
-        if !layer_path_buffer.exists() {
-            panic!("Layer does not exist at path {}", layer_path);
+        if !layer_path.exists() {
+            panic!("Layer does not exist at path {}", layer_path.display());
         }
 
-        if is_first_layer {
-            composite_command.arg(layer_path);
-            is_first_layer = false;
-        } else {
-            composite_command.args([layer_path, "-composite"]);
-        }
+        let layer = image::open(layer_path).ok().expect("Could not open layer");
+        image::imageops::overlay(&mut base_layer, &layer, 0, 0);
     }
 
-    composite_command
-        .arg(image_path)
-        .output()
-        .expect(&format!("Error creating image {}", id));
+    base_layer
+        .save(image_path)
+        .expect("Could not save final image");
 }

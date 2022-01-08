@@ -10,6 +10,7 @@ clap = { version = "3.0.5", features = ["derive"] }
 serde = { version = "1.0.130", features = ["derive"] }
 serde_json = { version = "1.0.69", features = ["preserve_order"] }
 rand = { version = "0.8.4", features = ["alloc"] }
+image = "0.23.14"
 
 [dev-dependencies]
 tempfile = "3.2.0"
