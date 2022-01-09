@@ -6,13 +6,13 @@ Depends on `libvips` for art generation, which can be installed here: https://ww
 
 Install from source:
 ```sh
-cargo install --git https://github.com/glockenberry/resin
+cargo install --git https://github.com/unitedunderworldnft/resin
 resin --help
 ```
 
 Or build from source:
 ```sh
-git clone https://github.com/glockenberry/resin.git
+git clone https://github.com/unitedunderworldnft/resin.git
 cd resin
 cargo build --release
 ./target/release/resin --help
@@ -41,7 +41,7 @@ resin init
 3. Run `resin generate`
 4. View generated files in `./generated`!
 
-Refer to [config.example.json](https://github.com/glockenberry/resin/blob/main/config.example.json) for the format of `config.json`
+Refer to [config.example.json](https://github.com/unitedunderworldnft/resin/blob/main/config.example.json) for the format of `config.json`
 
 ### Assets directory structure:
 ```
@@ -63,7 +63,7 @@ If you want to use a thing for another thign, computed keys can help you with th
 
 # Develop locally
 ```sh
-git clone https://github.com/glockenberry/resin.git
+git clone https://github.com/unitedunderworldnft/resin.git
 cd resin
 cargo run
 cargo test # make sure all tests pass
