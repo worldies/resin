@@ -2,7 +2,7 @@
 Solana NFT generative artwork program
 
 # Installation
-Depends on `imagemagick` for art generation, which can be installed here: https://imagemagick.org/script/download.php
+Depends on `libvips` for art generation, which can be installed here: https://www.libvips.org/install.html
 
 Install from source:
 ```sh
@@ -57,6 +57,9 @@ Refer to [config.example.json](https://github.com/glockenberry/resin/blob/main/c
         ...
     ...
 ```
+
+## Computed Keys
+If you want to use a thing for another thign, computed keys can help you with that.
 
 # Develop locally
 ```sh
