@@ -58,9 +58,6 @@ Refer to [config.example.json](https://github.com/unitedunderworldnft/resin/blob
     ...
 ```
 
-## Computed Keys
-If you want to use a thing for another thign, computed keys can help you with that.
-
 # Develop locally
 ```sh
 git clone https://github.com/unitedunderworldnft/resin.git
