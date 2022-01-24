@@ -30,6 +30,10 @@ pub struct Generate {
     #[clap(long)]
     skip_metadata: bool,
 
+    /// Whether to only generate metadata and not the art
+    #[clap(long)]
+    skip_art: bool,
+
     /// Location of assets to generate
     #[clap(short, long, default_value = "./assets")]
     assets: String,
