@@ -19,7 +19,7 @@ pub struct Config {
     pub creators: Vec<Creator>,
     pub royalty_percentage: u8,
     pub collection: Collection,
-    pub attributes: IndexMap<String, Attribute>,
+    pub attributes: IndexMap<String, BTreeMap<String, Attribute>>,
     pub guaranteed_attribute_rolls: Vec<Vec<String>>,
     pub amount: u32,
 }
@@ -33,8 +33,8 @@ pub struct Collection {
 #[derive(Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Attribute {
-    Keyed(BTreeMap<String, BTreeMap<String, f32>>),
-    Standard(BTreeMap<String, f32>),
+    Keyed(BTreeMap<String, f32>),
+    Standard(f32),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

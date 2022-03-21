@@ -139,7 +139,7 @@ fn create_from_existing(options: Init) {
         }
 
         let mut attributes = BTreeMap::new();
-        attributes.insert("_".to_string(), attribute_layers);
+        attributes.insert("_".to_string(), Attribute::Keyed(attribute_layers));
 
         config.attributes.insert(
             attribute
@@ -149,7 +149,7 @@ fn create_from_existing(options: Init) {
                 .to_str()
                 .unwrap()
                 .to_string(),
-            Attribute::Keyed(attributes),
+            attributes,
         );
     }
 

@@ -49,11 +49,11 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
     let mut rng = thread_rng();
 
     for (attribute_name, keys) in &config.attributes {
-        let subattribute;
-        match keys {
-            Attribute::Keyed(attribute) => {
-                let mut computed_key = "_";
-                for raw_key in attribute.keys() {
+        let mut subattribute: BTreeMap<String, f32> = BTreeMap::new();
+
+        for (raw_key, a) in keys {
+            match a {
+                Attribute::Keyed(a) => {
                     if raw_key == "_" {
                         continue;
                     }
@@ -63,19 +63,24 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
                         .iter()
                         .any(|t: &Trait| t.trait_type == key && t.value == value)
                     {
-                        computed_key = raw_key;
+                        subattribute = a.clone();
                         break;
                     }
                 }
-
-                subattribute = attribute.get(computed_key).expect(&format!(
-                    "Could not get attribute {} for key {}",
-                    attribute_name, computed_key
-                ));
+                Attribute::Standard(_) => continue,
             }
-            Attribute::Standard(attribute) => subattribute = attribute,
         }
-        calculate_rng_for_attribute(attribute_name, subattribute, &mut attributes, &mut rng);
+
+        if subattribute.is_empty() {
+            for (k, a) in keys {
+                match a {
+                    Attribute::Keyed(_) => continue,
+                    Attribute::Standard(v) => subattribute.insert(k.to_string(), *v),
+                };
+            }
+        }
+
+        calculate_rng_for_attribute(attribute_name, &subattribute, &mut attributes, &mut rng);
     }
 
     create_metadata(n, attributes, config, output_directory)
