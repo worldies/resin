@@ -52,7 +52,6 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
         let subattribute;
         match keys {
             Attribute::Keyed(attribute) => {
-                let mut attributes_iter = attributes.iter();
                 let mut computed_key = "_";
                 for raw_key in attribute.keys() {
                     if raw_key == "_" {
@@ -60,7 +59,10 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
                     }
                     let (key, value) = raw_key.split_once(":").unwrap_or(("_key", raw_key));
 
-                    if attributes_iter.any(|t: &Trait| t.trait_type == key && t.value == value) {
+                    if attributes
+                        .iter()
+                        .any(|t: &Trait| t.trait_type == key && t.value == value)
+                    {
                         computed_key = raw_key;
                         break;
                     }
