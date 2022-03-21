@@ -100,74 +100,54 @@ mod config {
         assert_eq!(parsed_config.collection.family, "Special NFTs");
         assert_eq!(parsed_config.attributes.len(), 5);
 
-        if let Attribute::Keyed(background_attribute) =
-            parsed_config.attributes.get("background").unwrap()
-        {
-            assert_eq!(background_attribute.get("_").unwrap().len(), 6);
-            assert_eq!(
-                background_attribute
-                    .get("_")
-                    .unwrap()
-                    .get("blue.png")
-                    .unwrap(),
-                &0.04f32
-            );
+        let background_attribute = parsed_config.attributes.get("background").unwrap();
+        if let Attribute::Keyed(a) = background_attribute.get("_").unwrap() {
+            assert_eq!(a.len(), 6);
+            assert_eq!(a.get("blue.png").unwrap(), &0.04f32);
         } else {
             assert!(
                 false,
-                "wasn't able to deserialize background_attribute into keyed attribute"
+                "wasn't able to deserialize background_attribute key into keyed attribute"
             )
         }
 
-        if let Attribute::Keyed(face_attribute) = parsed_config.attributes.get("face").unwrap() {
-            assert_eq!(face_attribute.get("joker").unwrap().len(), 1);
-            assert_eq!(face_attribute.get("_").unwrap().len(), 5);
-            assert_eq!(
-                face_attribute
-                    .get("joker")
-                    .unwrap()
-                    .get("gold-face.png")
-                    .unwrap(),
-                &0.11f32
-            );
-            assert_eq!(
-                face_attribute
-                    .get("_")
-                    .unwrap()
-                    .get("cyan-face.png")
-                    .unwrap(),
-                &0.07f32
-            );
+        let face_attribute = parsed_config.attributes.get("face").unwrap();
+        if let Attribute::Keyed(a) = face_attribute.get("_").unwrap() {
+            assert_eq!(a.len(), 5);
+            assert_eq!(a.get("cyan-face.png").unwrap(), &0.07f32);
         } else {
             assert!(
                 false,
-                "wasn't able to deserialize face_attribute into keyed attribute"
+                "wasn't able to deserialize face_attribute key into keyed attribute"
+            )
+        }
+        if let Attribute::Keyed(a) = face_attribute.get("joker").unwrap() {
+            assert_eq!(a.len(), 1);
+            assert_eq!(a.get("gold-face.png").unwrap(), &0.11f32);
+        } else {
+            assert!(
+                false,
+                "wasn't able to deserialize face_attribute key into keyed attribute"
             )
         }
 
-        if let Attribute::Keyed(mouth_attribute) = parsed_config.attributes.get("mouth").unwrap() {
-            assert_eq!(mouth_attribute.get("_key:joker").unwrap().len(), 1);
-            assert_eq!(mouth_attribute.get("_").unwrap().len(), 2);
-            assert_eq!(
-                mouth_attribute
-                    .get("_key:joker")
-                    .unwrap()
-                    .get("triangle-mouth.png")
-                    .unwrap(),
-                &0.68f32
-            );
-            assert_eq!(
-                mouth_attribute
-                    .get("_")
-                    .unwrap()
-                    .get("block-mouth.png")
-                    .unwrap(),
-                &0.23f32
-            );
+        let mouth_attribute = parsed_config.attributes.get("mouth").unwrap();
+        if let Attribute::Keyed(a) = mouth_attribute.get("_").unwrap() {
+            assert_eq!(a.len(), 2);
+            assert_eq!(a.get("block-mouth.png").unwrap(), &0.23f32);
         } else {
             assert!(
                 false,
-                "wasn't able to deserialize mouth_attribute into keyed attribute"
+                "wasn't able to deserialize mouth_attribute key into keyed attribute"
+            )
+        }
+        if let Attribute::Keyed(a) = mouth_attribute.get("_key:joker").unwrap() {
+            assert_eq!(a.len(), 1);
+            assert_eq!(a.get("triangle-mouth.png").unwrap(), &0.68f32);
+        } else {
+            assert!(
+                false,
+                "wasn't able to deserialize mouth_attribute key into keyed attribute"
             )
         }
 
@@ -275,32 +255,34 @@ mod init {
         assert_eq!(parsed_config.collection.family, "NFT Family");
         assert_eq!(parsed_config.attributes.len(), 3);
 
-        if let Attribute::Keyed(layer_1) = parsed_config.attributes.get("LAYER_NAME").unwrap() {
-            assert_eq!(layer_1.get("_").unwrap().len(), 1);
-            assert_eq!(
-                layer_1.get("_").unwrap().get("FILE_NAME.png").unwrap(),
-                &0.01f32
-            );
+        let layer_1 = parsed_config.attributes.get("LAYER_NAME").unwrap();
+        if let Attribute::Keyed(a) = layer_1.get("_").unwrap() {
+            assert_eq!(a.len(), 1);
+            assert_eq!(a.get("FILE_NAME.png").unwrap(), &0.01f32);
         } else {
             assert!(
                 false,
-                "wasn't able to deserialize LAYER_NAME into keyed attribute"
+                "wasn't able to deserialize LAYER_NAME key into keyed attribute"
             )
         }
-        if let Attribute::Keyed(layer_2) = parsed_config.attributes.get("LAYER_NAME_2").unwrap() {
-            assert_eq!(layer_2.get("_").unwrap().len(), 1);
-            assert_eq!(
-                layer_2.get("KEY").unwrap().get("FILE_NAME_3.png").unwrap(),
-                &0.01f32
-            );
-            assert_eq!(
-                layer_2.get("_").unwrap().get("FILE_NAME_2.png").unwrap(),
-                &0.01f32
-            );
+
+        let layer_2 = parsed_config.attributes.get("LAYER_NAME_2").unwrap();
+        if let Attribute::Keyed(a) = layer_2.get("_").unwrap() {
+            assert_eq!(a.len(), 1);
+            assert_eq!(a.get("FILE_NAME_2.png").unwrap(), &0.01f32);
         } else {
             assert!(
                 false,
-                "wasn't able to deserialize LAYER_NAME_2 into keyed attribute"
+                "wasn't able to deserialize LAYER_NAME_2 key into keyed attribute"
+            )
+        }
+        if let Attribute::Keyed(a) = layer_2.get("KEY").unwrap() {
+            assert_eq!(a.len(), 1);
+            assert_eq!(a.get("FILE_NAME_3.png").unwrap(), &0.01f32);
+        } else {
+            assert!(
+                false,
+                "wasn't able to deserialize LAYER_NAME_2 key into keyed attribute"
             )
         }
 
@@ -353,28 +335,25 @@ mod init {
         assert_eq!(parsed_config.collection.family, "NFT Family");
         assert_eq!(parsed_config.attributes.len(), 3);
 
-        if let Attribute::Keyed(layer_1) = parsed_config.attributes.get("attribute 1").unwrap() {
-            assert_eq!(layer_1.get("_").unwrap().len(), 3);
-            assert_eq!(
-                layer_1.get("_").unwrap().get("file 1.png").unwrap(),
-                &0.1f32
-            );
+        let layer_1 = parsed_config.attributes.get("attribute 1").unwrap();
+        if let Attribute::Keyed(a) = layer_1.get("_").unwrap() {
+            assert_eq!(a.len(), 3);
+            assert_eq!(a.get("file 1.png").unwrap(), &0.1f32);
         } else {
             assert!(
                 false,
-                "wasn't able to deserialize attribute 1 into keyed attribute"
+                "wasn't able to deserialize attribute 1 key into keyed attribute"
             )
         }
-        if let Attribute::Keyed(layer_2) = parsed_config.attributes.get("attribute 2").unwrap() {
-            assert_eq!(layer_2.get("_").unwrap().len(), 3);
-            assert_eq!(
-                layer_2.get("_").unwrap().get("file 2.png").unwrap(),
-                &0.1f32
-            );
+
+        let layer_2 = parsed_config.attributes.get("attribute 2").unwrap();
+        if let Attribute::Keyed(a) = layer_2.get("_").unwrap() {
+            assert_eq!(a.len(), 3);
+            assert_eq!(a.get("file 2.png").unwrap(), &0.1f32);
         } else {
             assert!(
                 false,
-                "wasn't able to deserialize attribute 1 into keyed attribute"
+                "wasn't able to deserialize attribute 2 key into keyed attribute"
             )
         }
 
