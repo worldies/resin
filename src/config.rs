@@ -1,3 +1,4 @@
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 use std::{collections::BTreeMap, fs};
@@ -18,7 +19,7 @@ pub struct Config {
     pub creators: Vec<Creator>,
     pub royalty_percentage: u8,
     pub collection: Collection,
-    pub attributes: BTreeMap<String, Attribute>,
+    pub attributes: IndexMap<String, Attribute>,
     pub guaranteed_attribute_rolls: Vec<Vec<String>>,
     pub amount: u32,
 }

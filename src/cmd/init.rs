@@ -1,3 +1,4 @@
+use indexmap::IndexMap;
 use std::{
     collections::BTreeMap,
     fs::{create_dir_all, remove_dir_all, File},
@@ -104,7 +105,7 @@ fn create_from_existing(options: Init) {
     let mut config: Config =
         serde_json::from_str(EXAMPLE_CONFIG).expect("Unable to parse example config");
 
-    config.attributes = BTreeMap::new();
+    config.attributes = IndexMap::new();
 
     for attribute in assets_path
         .read_dir()
