@@ -57,12 +57,21 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
                     if raw_key == "_" {
                         continue;
                     }
-                    let (key, value) = raw_key.split_once(":").unwrap_or(("_key", raw_key));
 
-                    if attributes
-                        .iter()
-                        .any(|t: &Trait| t.trait_type == key && t.value == value)
-                    {
+                    let good_match = raw_key.split("|").all(|k| {
+                        let (key, value) = k.split_once(":").unwrap_or(("_key", k));
+
+                        if attributes
+                            .iter()
+                            .any(|t: &Trait| t.trait_type == key && t.value == value)
+                        {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    });
+
+                    if good_match {
                         subattribute = a.clone();
                         break;
                     }
