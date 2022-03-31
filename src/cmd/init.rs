@@ -118,7 +118,7 @@ fn create_from_existing(options: Init) {
             continue;
         }
 
-        let mut attribute_layers: BTreeMap<String, f32> = BTreeMap::new();
+        let mut attribute_layers: IndexMap<String, f32> = IndexMap::new();
 
         for layer in attribute.path().read_dir().expect(&format!(
             "Encountered error reading folder in {}",

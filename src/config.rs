@@ -33,7 +33,7 @@ pub struct Collection {
 #[derive(Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Attribute {
-    Keyed(BTreeMap<String, f32>),
+    Keyed(IndexMap<String, f32>),
     Standard(f32),
 }
 

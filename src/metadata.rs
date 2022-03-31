@@ -1,8 +1,8 @@
+use indexmap::IndexMap;
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::BTreeMap,
     fs::{create_dir_all, File},
     io::Write,
     path::Path,
@@ -49,7 +49,7 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
     let mut rng = thread_rng();
 
     for (attribute_name, keys) in &config.attributes {
-        let mut subattribute: BTreeMap<String, f32> = BTreeMap::new();
+        let mut subattribute: IndexMap<String, f32> = IndexMap::new();
 
         for (raw_key, a) in keys {
             match a {
@@ -88,7 +88,7 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
 
 fn calculate_rng_for_attribute(
     attribute_name: &String,
-    attribute: &BTreeMap<String, f32>,
+    attribute: &IndexMap<String, f32>,
     attributes: &mut Vec<Trait>,
     rng: &mut ThreadRng,
 ) {
