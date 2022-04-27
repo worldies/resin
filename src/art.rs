@@ -2,6 +2,7 @@ use std::{
     fs::{read_dir, read_to_string},
     path::Path,
     process::Command,
+    sync::{Arc, Mutex},
     thread,
 };
 
@@ -23,6 +24,19 @@ fn read_metadata(assets_directory: &'static str, output_directory: &'static str)
         output_directory
     ));
     let mut threads: Vec<thread::JoinHandle<()>> = vec![];
+    let num_completed = Arc::new(Mutex::new(0 as u32));
+
+    let num_clone = num_completed.clone();
+    thread::spawn(move || {
+        let mut old_completed = 0;
+        loop {
+            let n = *num_clone.lock().unwrap();
+            if n != old_completed {
+                old_completed = n;
+                println!("{} jobs completed", n);
+            }
+        }
+    });
 
     for file_raw in files {
         let file = file_raw.expect("Could not read file");
@@ -38,6 +52,7 @@ fn read_metadata(assets_directory: &'static str, output_directory: &'static str)
         if threads.len() >= NUM_THREADS {
             let t = threads.remove(0);
             t.join().expect("Thread failed to finish cleanly");
+            *num_completed.lock().unwrap() += 1;
         }
         threads.push(thread::spawn(move || {
             let contents = read_to_string(file.path()).expect(&format!(
@@ -65,6 +80,7 @@ fn read_metadata(assets_directory: &'static str, output_directory: &'static str)
 
     for child in threads {
         let _ = child.join();
+        *num_completed.lock().unwrap() += 1;
     }
 }
 
