@@ -73,7 +73,7 @@ pub struct Verify {
 
 fn main() {
     let options = Options::parse();
-    println!("Starting generator");
+    println!("Starting");
     let now = SystemTime::now();
 
     match options.subcmd {
@@ -82,8 +82,5 @@ fn main() {
         SubCommand::Verify(c) => cmd::verify::handle(c),
     }
 
-    println!(
-        "Generator finished in {:#?}",
-        now.elapsed().unwrap_or_default()
-    );
+    println!("Finished in {:#?}", now.elapsed().unwrap_or_default());
 }
