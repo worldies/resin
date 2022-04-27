@@ -32,7 +32,7 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
                     .enumerate()
                     .map(|(i, t)| Trait {
                         trait_type: attribute_names[i].clone(),
-                        value: t.to_owned(),
+                        value: t.strip_suffix(".png").unwrap_or(t).to_string(),
                     })
                     .collect()
             };
