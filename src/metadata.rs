@@ -59,7 +59,7 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
                     }
 
                     let good_match = raw_key.split("|").all(|k| {
-                        let (key, value) = k.split_once(":").unwrap_or(("_key", k));
+                        let (key, value) = k.trim().split_once(":").unwrap_or(("_key", k));
 
                         if attributes
                             .iter()
