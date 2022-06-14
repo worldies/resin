@@ -61,28 +61,18 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
                     let mut good_match = raw_key.split("&").all(|k| {
                         let (key, value) = k.trim().split_once(":").unwrap_or(("_key", k));
 
-                        if attributes
+                        attributes
                             .iter()
                             .any(|t: &Trait| t.trait_type == key && t.value == value)
-                        {
-                            return true;
-                        } else {
-                            return false;
-                        }
                     });
 
                     if !good_match {
                         good_match = raw_key.split("|").any(|k| {
                             let (key, value) = k.trim().split_once(":").unwrap_or(("_key", k));
 
-                            if attributes
+                            attributes
                                 .iter()
                                 .any(|t: &Trait| t.trait_type == key && t.value == value)
-                            {
-                                return true;
-                            } else {
-                                return false;
-                            }
                         });
                     }
 
