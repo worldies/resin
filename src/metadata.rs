@@ -16,7 +16,7 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
 
     let config = config::parse(config_location.as_str()).expect("Error parsing config");
 
-    create_dir_all(output_directory).expect(&format!(
+    create_dir_all(Path::new(output_directory).join(".resin")).expect(&format!(
         "Could not create output directory at {}",
         output_directory
     ));
@@ -33,7 +33,7 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
                     .enumerate()
                     .map(|(i, t)| Trait {
                         trait_type: attribute_names[i].clone(),
-                        value: t.strip_suffix(".png").unwrap_or(t).to_string(),
+                        value: t.to_string(),
                     })
                     .collect()
             };
@@ -62,18 +62,18 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
                     let mut good_match = raw_key.split("&").all(|k| {
                         let (key, value) = k.trim().split_once(":").unwrap_or(("_key", k));
 
-                        attributes
-                            .iter()
-                            .any(|t: &Trait| t.trait_type == key && t.value == value)
+                        attributes.iter().any(|t: &Trait| {
+                            t.trait_type == key && stylize_asset_name(&t.value) == value
+                        })
                     });
 
                     if !good_match {
                         good_match = raw_key.split("|").any(|k| {
                             let (key, value) = k.trim().split_once(":").unwrap_or(("_key", k));
 
-                            attributes
-                                .iter()
-                                .any(|t: &Trait| t.trait_type == key && t.value == value)
+                            attributes.iter().any(|t: &Trait| {
+                                t.trait_type == key && stylize_asset_name(&t.value) == value
+                            })
                         });
                     }
 
@@ -115,25 +115,21 @@ fn calculate_rng_for_attribute(
 
     let result = dist.sample(rng);
 
-    // Remove file extension (.png)
-    let name = choices[result]
-        .strip_suffix(".png")
-        .unwrap_or(choices[result]);
-
     attributes.push(Trait {
         trait_type: attribute_name.to_string(),
-        value: name.to_string(),
+        value: choices[result].to_string(),
     });
 }
 
 fn create_metadata(
     id: u32,
-    mut attributes: Vec<Trait>,
+    attributes: Vec<Trait>,
     config: &config::Config,
     output_directory: &String,
 ) {
+    let resin_metadata_directory = Path::new(output_directory).join(".resin");
     let image_name = &format!("{}.png", id);
-    let generated_metadata = NFTMetadata {
+    let mut generated_metadata = NFTMetadata {
         name: &format!("{} #{}", &config.name, id),
         symbol: &config.symbol,
         description: &config.description,
@@ -142,8 +138,13 @@ fn create_metadata(
         external_url: &config.external_url,
         edition: 0,
         attributes: attributes
+            .to_vec()
             .drain(..)
             .filter(|attribute| !attribute.trait_type.starts_with("_"))
+            .map(|mut attribute| {
+                attribute.value = stylize_asset_name(&attribute.value).to_string();
+                attribute
+            })
             .collect(),
         properties: Properties {
             files: vec![PropertyFile {
@@ -159,7 +160,14 @@ fn create_metadata(
         id,
         &serde_json::to_string(&generated_metadata).expect("Could not serialize generated JSON"),
         output_directory,
-    )
+    );
+
+    generated_metadata.attributes = attributes;
+    write_metadata(
+        id,
+        &serde_json::to_string(&generated_metadata).expect("Could not serialize generated JSON"),
+        &resin_metadata_directory.to_string_lossy().to_string(),
+    );
 }
 
 fn write_metadata(id: u32, data: &str, output_directory: &String) {
@@ -197,7 +205,7 @@ pub struct NFTMetadata<'a> {
     collection: config::Collection,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Trait {
     pub trait_type: String,
     pub value: String,
