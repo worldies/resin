@@ -1,5 +1,5 @@
 use std::{
-    fs::{read_dir, read_to_string},
+    fs::{read_dir, read_to_string, remove_dir_all},
     path::Path,
     process::Command,
     sync::{Arc, Mutex},
@@ -12,16 +12,37 @@ const NUM_THREADS: usize = 20;
 
 pub fn generate(_config_location: &String, assets_directory: String, output_directory: String) {
     println!("Generating artwork from metadata...");
+
+    let mut resin_metadata_directory_present = false;
+    let metadata_directory = {
+        let p = Path::new(&output_directory).join(".resin/");
+        if p.is_dir() {
+            resin_metadata_directory_present = true;
+            p.to_string_lossy().to_string()
+        } else {
+            output_directory.clone()
+        }
+    };
+
     read_metadata(
         Box::leak(assets_directory.into_boxed_str()),
+        Box::leak(metadata_directory.clone().into_boxed_str()),
         Box::leak(output_directory.into_boxed_str()),
     );
+
+    if resin_metadata_directory_present {
+        let _ = remove_dir_all(metadata_directory);
+    }
 }
 
-fn read_metadata(assets_directory: &'static str, output_directory: &'static str) {
-    let files = read_dir(output_directory).expect(&format!(
+fn read_metadata(
+    assets_directory: &'static str,
+    metadata_directory: &'static str,
+    output_directory: &'static str,
+) {
+    let files = read_dir(metadata_directory).expect(&format!(
         "Could not read source directory {}",
-        output_directory
+        metadata_directory
     ));
     let mut threads: Vec<thread::JoinHandle<()>> = vec![];
     let num_completed = Arc::new(Mutex::new(0 as u32));
@@ -96,9 +117,12 @@ fn create_image(id: &str, metadata: &NFTMetadata, assets_directory: &str, output
 
     let mut layers = vec![];
     for attribute in &metadata.attributes {
+        if attribute.trait_type.starts_with("_") {
+            continue;
+        }
         let layer_path_buffer = Path::new(assets_directory)
-            .join(attribute.trait_type.clone())
-            .join(format!("{}.png", &attribute.value));
+            .join(&attribute.trait_type)
+            .join(&attribute.value);
         let layer_path = layer_path_buffer.to_str().expect(&format!(
             "Layer is not valid path at {}",
             layer_path_buffer.display()
