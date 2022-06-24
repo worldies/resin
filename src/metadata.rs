@@ -3,6 +3,7 @@ use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::{
+    ffi::OsStr,
     fs::{create_dir_all, File},
     io::Write,
     path::Path,
@@ -172,6 +173,14 @@ fn write_metadata(id: u32, data: &str, output_directory: &String) {
         "Could not write to file at path {}",
         path_buffer.display()
     ));
+}
+
+fn stylize_asset_name(original: &str) -> &str {
+    Path::new(original)
+        .file_stem()
+        .unwrap_or(OsStr::new(original))
+        .to_str()
+        .unwrap_or(original)
 }
 
 #[derive(Serialize, Deserialize)]
