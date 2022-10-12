@@ -13,20 +13,10 @@ use crate::{
 
 const EXAMPLE_CONFIG: &str = r#"{
     "name": "NFT Title",
+    "collectionName":  "NFT Collection",
     "symbol": "SNFT",
     "description": "Hello, NFT!",
     "externalUrl": "https://example.com",
-    "creators": [
-        {
-            "address": "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD",
-            "share": 100
-        }
-    ],
-    "royaltyPercentage": 10,
-    "collection": {
-        "name": "NFT Collection",
-        "family": "NFT Family"
-    },
     "attributes": {
         "_key": {
             "KEY": 0.01

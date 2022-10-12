@@ -13,12 +13,10 @@ pub fn parse(location: &str) -> Result<Config> {
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     pub name: String,
+    pub collection_name: String,
     pub symbol: String,
     pub description: String,
     pub external_url: String,
-    pub creators: Vec<Creator>,
-    pub royalty_percentage: u8,
-    pub collection: Collection,
     pub attributes: IndexMap<String, BTreeMap<String, Attribute>>,
     pub guaranteed_attribute_rolls: Vec<Vec<String>>,
     pub amount: u32,
@@ -26,21 +24,9 @@ pub struct Config {
     pub max_retries: Option<u32>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Collection {
-    pub name: String,
-    pub family: String,
-}
-
 #[derive(Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Attribute {
     Keyed(IndexMap<String, f32>),
     Standard(f32),
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct Creator {
-    pub address: String,
-    pub share: u8,
 }

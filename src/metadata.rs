@@ -4,12 +4,13 @@ use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::{
     ffi::OsStr,
+    fmt::Display,
     fs::{create_dir_all, File},
     io::Write,
     path::Path,
 };
 
-use crate::config::{self, Attribute, Creator};
+use crate::config::{self, Attribute};
 
 pub fn generate(config_location: &String, _assets_directory: &String, output_directory: &String) {
     println!("Generating metadata...");
@@ -46,6 +47,8 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
             generate_attributes(i, &config, output_directory, &mut generated_rolls, None);
         }
     }
+
+    create_collection_metadata(&config, output_directory);
 }
 
 fn generate_attributes(
@@ -161,10 +164,8 @@ fn create_metadata(
         name: &format!("{} #{}", &config.name, id),
         symbol: &config.symbol,
         description: &config.description,
-        seller_fee_basis_points: 0,
         image: image_name,
         external_url: &config.external_url,
-        edition: 0,
         attributes: attributes
             .to_vec()
             .drain(..)
@@ -180,9 +181,7 @@ fn create_metadata(
                 r#type: "image/png",
             }],
             category: "image",
-            creators: config.creators.clone(),
         },
-        collection: config.collection.clone(),
     };
     write_metadata(
         id,
@@ -198,7 +197,30 @@ fn create_metadata(
     );
 }
 
-fn write_metadata(id: u32, data: &str, output_directory: &String) {
+fn create_collection_metadata(config: &config::Config, output_directory: &String) {
+    let generated_metadata = NFTMetadata {
+        name: &config.collection_name,
+        symbol: &config.symbol,
+        description: &config.description,
+        image: "collection.png",
+        external_url: &config.external_url,
+        attributes: vec![],
+        properties: Properties {
+            files: vec![PropertyFile {
+                uri: "collection.png",
+                r#type: "image/png",
+            }],
+            category: "image",
+        },
+    };
+    write_metadata(
+        "collection",
+        &serde_json::to_string(&generated_metadata).expect("Could not serialize generated JSON"),
+        output_directory,
+    );
+}
+
+fn write_metadata<T: Display>(id: T, data: &str, output_directory: &String) {
     let path_buffer = Path::new(output_directory).join(format!("{}.json", id));
 
     let mut file = File::create(&path_buffer).expect(&format!(
@@ -224,13 +246,10 @@ pub struct NFTMetadata<'a> {
     name: &'a str,
     symbol: &'a str,
     description: &'a str,
-    seller_fee_basis_points: u32,
     image: &'a str,
     external_url: &'a str,
-    edition: u16,
     pub attributes: Vec<Trait>,
     properties: Properties<'a>,
-    collection: config::Collection,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -243,7 +262,6 @@ pub struct Trait {
 struct Properties<'a> {
     files: Vec<PropertyFile<'a>>,
     category: &'a str,
-    creators: Vec<Creator>,
 }
 
 #[derive(Serialize, Deserialize)]
