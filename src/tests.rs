@@ -7,20 +7,10 @@ mod config {
     pub const SAMPLE_CONFIG: &str = r#"
     {
         "name": "Very Special NFT",
+        "collectionName": "Special NFTs",
         "symbol": "SNFT",
         "description": "This is the description of my NFT, it can be literally anything!",
         "externalUrl": "https://veryspecial.nft",
-        "creators": [
-            {
-                "address": "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD",
-                "share": 100
-            }
-        ],
-        "royaltyPercentage": 10,
-        "collection": {
-            "name": "Special NFT: Season 1",
-            "family": "Special NFTs"
-        },
         "attributes": {
             "_key": {
                 "joker": 0.01
@@ -84,20 +74,13 @@ mod config {
         let parsed_config = config::parse(file.path().to_str().unwrap()).unwrap();
 
         assert_eq!(parsed_config.name, "Very Special NFT");
+        assert_eq!(parsed_config.collection_name, "Special NFTs");
         assert_eq!(parsed_config.symbol, "SNFT");
         assert_eq!(
             parsed_config.description,
             "This is the description of my NFT, it can be literally anything!"
         );
         assert_eq!(parsed_config.external_url, "https://veryspecial.nft");
-        assert_eq!(
-            parsed_config.creators[0].address,
-            "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD"
-        );
-        assert_eq!(parsed_config.creators[0].share, 100);
-        assert_eq!(parsed_config.royalty_percentage, 10);
-        assert_eq!(parsed_config.collection.name, "Special NFT: Season 1");
-        assert_eq!(parsed_config.collection.family, "Special NFTs");
         assert_eq!(parsed_config.attributes.len(), 5);
 
         let background_attribute = parsed_config.attributes.get("background").unwrap();
@@ -242,17 +225,10 @@ mod init {
         let parsed_config = config::parse(dir.join("config.json").to_str().unwrap()).unwrap();
 
         assert_eq!(parsed_config.name, "NFT Title");
+        assert_eq!(parsed_config.collection_name, "NFT Collection");
         assert_eq!(parsed_config.symbol, "SNFT");
         assert_eq!(parsed_config.description, "Hello, NFT!");
         assert_eq!(parsed_config.external_url, "https://example.com");
-        assert_eq!(
-            parsed_config.creators[0].address,
-            "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD"
-        );
-        assert_eq!(parsed_config.creators[0].share, 100);
-        assert_eq!(parsed_config.royalty_percentage, 10);
-        assert_eq!(parsed_config.collection.name, "NFT Collection");
-        assert_eq!(parsed_config.collection.family, "NFT Family");
         assert_eq!(parsed_config.attributes.len(), 3);
 
         let layer_1 = parsed_config.attributes.get("LAYER_NAME").unwrap();
@@ -322,17 +298,10 @@ mod init {
         let parsed_config = config::parse(dir_path.join("config.json").to_str().unwrap()).unwrap();
 
         assert_eq!(parsed_config.name, "NFT Title");
+        assert_eq!(parsed_config.collection_name, "NFT Collection");
         assert_eq!(parsed_config.symbol, "SNFT");
         assert_eq!(parsed_config.description, "Hello, NFT!");
         assert_eq!(parsed_config.external_url, "https://example.com");
-        assert_eq!(
-            parsed_config.creators[0].address,
-            "BPr18DCdtzASf1YVbUVZ4dZ7mA6jpMYZSUP3YuiMgGeD"
-        );
-        assert_eq!(parsed_config.creators[0].share, 100);
-        assert_eq!(parsed_config.royalty_percentage, 10);
-        assert_eq!(parsed_config.collection.name, "NFT Collection");
-        assert_eq!(parsed_config.collection.family, "NFT Family");
         assert_eq!(parsed_config.attributes.len(), 3);
 
         let layer_1 = parsed_config.attributes.get("attribute 1").unwrap();
