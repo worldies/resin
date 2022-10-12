@@ -22,6 +22,8 @@ pub struct Config {
     pub attributes: IndexMap<String, BTreeMap<String, Attribute>>,
     pub guaranteed_attribute_rolls: Vec<Vec<String>>,
     pub amount: u32,
+    pub require_unique: Option<bool>,
+    pub max_retries: Option<u32>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]

@@ -21,10 +21,13 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
         output_directory
     ));
 
+    // Collection of generated rolls used if `require_unique` is enabled
+    let mut generated_rolls: Vec<Vec<Trait>> = Vec::new();
+
     let mut guaranteed_rolls = config.guaranteed_attribute_rolls.clone();
     let attribute_names: Vec<&String> = config.attributes.keys().collect();
     // How often to insert a guaranteed roll into generated rolls
-    let insert_frequency = config.amount / (config.guaranteed_attribute_rolls.len() as u32 + 1);
+    let insert_frequency = config.amount / (guaranteed_rolls.len() as u32 + 1);
     for i in 0..config.amount {
         if i > 0 && guaranteed_rolls.len() > 0 && i % insert_frequency == 0 {
             let roll_attributes = {
@@ -40,12 +43,19 @@ pub fn generate(config_location: &String, _assets_directory: &String, output_dir
             create_metadata(i, roll_attributes, &config, output_directory);
             guaranteed_rolls.remove(0);
         } else {
-            generate_attributes(i, &config, output_directory);
+            generate_attributes(i, &config, output_directory, &mut generated_rolls, None);
         }
     }
 }
 
-fn generate_attributes(n: u32, config: &config::Config, output_directory: &String) {
+fn generate_attributes(
+    n: u32,
+    config: &config::Config,
+    output_directory: &String,
+    generated_rolls: &mut Vec<Vec<Trait>>,
+    retries: Option<u32>,
+) {
+    let retries = retries.unwrap_or_default();
     let mut attributes = Vec::new();
     let mut rng = thread_rng();
 
@@ -97,6 +107,24 @@ fn generate_attributes(n: u32, config: &config::Config, output_directory: &Strin
 
         calculate_rng_for_attribute(attribute_name, &subattribute, &mut attributes, &mut rng);
     }
+
+    if config.require_unique.unwrap_or_default() && generated_rolls.contains(&attributes) {
+        if retries > config.max_retries.unwrap_or(64) {
+            panic!(
+                "Exceeded retry count to ensure uniqueness. Your config may need more attributes."
+            )
+        }
+        // If it already exists, re-roll
+        return generate_attributes(
+            n,
+            config,
+            output_directory,
+            generated_rolls,
+            Some(retries + 1),
+        );
+    }
+
+    generated_rolls.push(attributes.clone());
 
     create_metadata(n, attributes, config, output_directory)
 }
@@ -205,7 +233,7 @@ pub struct NFTMetadata<'a> {
     collection: config::Collection,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Trait {
     pub trait_type: String,
     pub value: String,
